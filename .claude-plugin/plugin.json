@@ -1,6 +1,6 @@
 {
   "name": "mugu-orchestration",
-  "description": "Personal orchestration system for work automation - seminar slides, time tracking, invoicing, and custom workflows",
+  "description": "個人用オーケストレーションシステム - セミナースライド作成、時間追跡、請求書生成、カスタムワークフロー自動化",
   "author": {
     "name": "Seiji",
     "url": "https://github.com/seiji"
@@ -8,7 +8,7 @@
   "homepage": "https://github.com/seiji/mugu-orchestration",
   "repository": "https://github.com/seiji/mugu-orchestration",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "claude-code",
     "orchestration",
@@ -17,7 +17,14 @@
     "supabase",
     "seminar",
     "invoicing",
-    "time-tracking"
+    "time-tracking",
+    "rules",
+    "hooks",
+    "skills",
+    "agents",
+    "code-quality",
+    "security",
+    "testing"
   ],
   "commands": "./commands",
   "skills": "./skills",

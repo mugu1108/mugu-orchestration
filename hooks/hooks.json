@@ -1,0 +1,66 @@
+{
+  "hooks": [
+    {
+      "name": "session-start",
+      "description": "セッション開始時にコンテキストを復元し、パッケージマネージャーを検出",
+      "event": "SessionStart",
+      "script": "./session-start.js"
+    },
+    {
+      "name": "session-end",
+      "description": "セッション終了時に状態を保存",
+      "event": "SessionEnd",
+      "script": "./session-end.js"
+    },
+    {
+      "name": "pre-git-push",
+      "description": "git push前に確認プロンプトを表示",
+      "event": "PreToolUse",
+      "matcher": {
+        "tool": "Bash",
+        "pattern": "git push"
+      },
+      "script": "./pre-git-push.js"
+    },
+    {
+      "name": "post-format-js",
+      "description": "JavaScriptファイル保存後に自動フォーマット",
+      "event": "PostToolUse",
+      "matcher": {
+        "tool": "Write",
+        "filePattern": "\\.(js|jsx)$"
+      },
+      "script": "./post-format.js"
+    },
+    {
+      "name": "post-format-ts",
+      "description": "TypeScriptファイル保存後に自動フォーマットと型チェック",
+      "event": "PostToolUse",
+      "matcher": {
+        "tool": "Write",
+        "filePattern": "\\.(ts|tsx)$"
+      },
+      "script": "./post-format-ts.js"
+    },
+    {
+      "name": "warn-console-log",
+      "description": "console.logが残っている場合に警告",
+      "event": "PostToolUse",
+      "matcher": {
+        "tool": "Write",
+        "filePattern": "\\.(js|jsx|ts|tsx)$"
+      },
+      "script": "./warn-console-log.js"
+    },
+    {
+      "name": "long-running-command",
+      "description": "長時間実行されるコマンドの警告",
+      "event": "PreToolUse",
+      "matcher": {
+        "tool": "Bash",
+        "pattern": "(npm install|npm ci|npx supabase|docker)"
+      },
+      "script": "./warn-long-command.js"
+    }
+  ]
+}

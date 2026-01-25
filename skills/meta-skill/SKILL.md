@@ -1,55 +1,59 @@
 ---
 name: meta-skill
-description: Generate new skills interactively. Use this skill when creating new automation workflows, agents, or commands for the mugu-orchestration system.
+description: 新しいスキルを対話的に生成します。mugu-orchestrationシステムに新しい自動化ワークフロー、エージェント、コマンドを作成する際に使用してください。
 triggers:
+  - "新しいスキルを作成"
+  - "スキルを生成"
+  - "自動化を追加"
+  - "新規スキルを作成"
   - "create new skill"
   - "generate skill"
   - "add automation"
   - "make new skill"
 ---
 
-# Meta Skill: Skill Generator
+# メタスキル: スキルジェネレーター
 
-This skill guides you through creating new skills for the mugu-orchestration system.
+このスキルは、mugu-orchestrationシステムに新しいスキルを作成する手順をガイドします。
 
-## When to Activate
+## 起動タイミング
 
-- Creating new automation workflows
-- Adding new business logic
-- Defining new agent capabilities
-- Building reusable command patterns
+- 新しい自動化ワークフローを作成するとき
+- 新しいビジネスロジックを追加するとき
+- 新しいエージェント機能を定義するとき
+- 再利用可能なコマンドパターンを構築するとき
 
-## Skill Creation Process
+## スキル作成プロセス
 
-### Step 1: Gather Requirements
+### ステップ1: 要件の収集
 
-Ask the user:
-1. **Skill Name**: What should this skill be called? (kebab-case, e.g., 'invoice-generator')
-2. **Description**: One-line description of what this skill does
-3. **Category**: Type of skill (automation, documentation, analysis, integration, workflow)
-4. **Triggers**: Keywords or phrases that should activate this skill
-5. **Tools Required**: Which tools will this skill use? (Read, Write, Bash, Grep, etc.)
-6. **MCP Integration**: Does this skill need MCP servers? (Supabase, GitHub, etc.)
+ユーザーに以下を確認します:
+1. **スキル名**: このスキルの名前は？（ケバブケース、例: 'invoice-generator'）
+2. **説明**: このスキルが何をするかの1行説明
+3. **カテゴリ**: スキルの種類（automation、documentation、analysis、integration、workflow）
+4. **トリガー**: このスキルを起動するキーワードやフレーズ
+5. **必要なツール**: このスキルで使用するツールは？（Read、Write、Bash、Grepなど）
+6. **MCP統合**: MCPサーバーが必要？（Supabase、GitHubなど）
 
-### Step 2: Choose Template Type
+### ステップ2: テンプレートタイプの選択
 
-Based on the category, select the appropriate template:
+カテゴリに基づいて、適切なテンプレートを選択します:
 
-#### A. Basic Automation Skill
-For simple task automation without external integrations.
+#### A. 基本的な自動化スキル
+外部統合なしのシンプルなタスク自動化用。
 
-#### B. Agent-Integrated Skill
-For skills that delegate to specialized agents.
+#### B. エージェント統合スキル
+専門化されたエージェントに委譲するスキル用。
 
-#### C. MCP-Integrated Skill
-For skills that interact with external services via MCP.
+#### C. MCP統合スキル
+MCPを介して外部サービスと連携するスキル用。
 
-#### D. Workflow Orchestration Skill
-For complex multi-step workflows.
+#### D. ワークフローオーケストレーションスキル
+複雑な多段階ワークフロー用。
 
-### Step 3: Generate SKILL.md
+### ステップ3: SKILL.mdの生成
 
-Create the skill file with:
+以下の形式でスキルファイルを作成します:
 
 ```markdown
 ---
@@ -63,52 +67,52 @@ tools: [{tools}]
 mcp_servers: [{mcp_servers}]
 ---
 
-# {Skill Title}
+# {スキルのタイトル}
 
-{Description paragraph}
+{説明の段落}
 
-## When to Activate
+## 起動タイミング
 
-- {Use case 1}
-- {Use case 2}
-- {Use case 3}
+- {ユースケース1}
+- {ユースケース2}
+- {ユースケース3}
 
-## Prerequisites
+## 前提条件
 
-- {Prerequisite 1}
-- {Prerequisite 2}
+- {前提条件1}
+- {前提条件2}
 
-## Workflow Steps
+## ワークフローステップ
 
-### Step 1: {Step Name}
+### ステップ1: {ステップ名}
 
-{Step description and implementation details}
+{ステップの説明と実装の詳細}
 
-### Step 2: {Step Name}
+### ステップ2: {ステップ名}
 
-{Step description and implementation details}
+{ステップの説明と実装の詳細}
 
-## Example Usage
+## 使用例
 
 ```
-User: {example user request}
+ユーザー: {ユーザーリクエストの例}
 
-Agent: {example response}
+エージェント: {レスポンスの例}
 ```
 
-## Configuration
+## 設定
 
-{Any configuration needed}
+{必要な設定}
 
-## Best Practices
+## ベストプラクティス
 
-1. {Best practice 1}
-2. {Best practice 2}
+1. {ベストプラクティス1}
+2. {ベストプラクティス2}
 ```
 
-### Step 4: Register in Supabase
+### ステップ4: Supabaseへの登録
 
-Insert skill metadata into the `skills` table:
+`skills`テーブルにスキルのメタデータを挿入します:
 
 ```typescript
 await supabase.from('skills').insert({
@@ -117,23 +121,23 @@ await supabase.from('skills').insert({
   category: category,
   triggers: triggers,
   template_path: `skills/${skillName}/SKILL.md`,
-  metadata: { /* additional metadata */ }
+  metadata: { /* 追加のメタデータ */ }
 })
 ```
 
-### Step 5: Create Supporting Files
+### ステップ5: サポートファイルの作成
 
-If needed, create:
-- **Templates** in `skills/{skill-name}/templates/`
-- **Scripts** in `scripts/{skill-name}/`
+必要に応じて以下を作成します:
+- **テンプレート** を `skills/{skill-name}/templates/` に
+- **スクリプト** を `scripts/{skill-name}/` に
 
-### Step 6: Update Documentation
+### ステップ6: ドキュメントの更新
 
-Add the new skill to README.md - Skills section
+README.mdのSkillsセクションに新しいスキルを追加します
 
-## Skill Templates
+## スキルテンプレート
 
-### Template A: Basic Automation Skill
+### テンプレートA: 基本的な自動化スキル
 
 ```markdown
 ---
@@ -142,17 +146,17 @@ description: {description}
 category: automation
 ---
 
-# {Skill Title}
+# {スキルのタイトル}
 
-## Workflow Steps
+## ワークフローステップ
 
-### Step 1: Validate Input
-### Step 2: Execute Action
-### Step 3: Log Result
-### Step 4: Notify User
+### ステップ1: 入力の検証
+### ステップ2: アクションの実行
+### ステップ3: 結果のログ記録
+### ステップ4: ユーザーへの通知
 ```
 
-### Template B: MCP-Integrated Skill
+### テンプレートB: MCP統合スキル
 
 ```markdown
 ---
@@ -163,41 +167,41 @@ mcp_servers:
   - supabase
 ---
 
-# {Skill Title}
+# {スキルのタイトル}
 
-## MCP Integration
+## MCP統合
 
-This skill uses the following MCP servers:
-- **Supabase**: Data persistence and retrieval
+このスキルは以下のMCPサーバーを使用します:
+- **Supabase**: データの永続化と取得
 
-### Supabase Operations
+### Supabase操作
 
-1. Query existing records
-2. Insert new data
-3. Update status
-4. Return results
+1. 既存レコードのクエリ
+2. 新しいデータの挿入
+3. ステータスの更新
+4. 結果の返却
 ```
 
-## Best Practices for Skill Creation
+## スキル作成のベストプラクティス
 
-1. **Clear Naming**: Use kebab-case, descriptive names
-2. **Single Responsibility**: Each skill should do one thing well
-3. **Composability**: Skills should be composable with other skills
-4. **Error Handling**: Always include error scenarios
-5. **Documentation**: Comprehensive examples and use cases
-6. **Logging**: Log execution to Supabase for analytics
+1. **明確な命名**: ケバブケースで、説明的な名前を使用
+2. **単一責任**: 各スキルは1つのことをうまくやる
+3. **組み合わせ可能性**: スキルは他のスキルと組み合わせ可能であるべき
+4. **エラー処理**: 常にエラーシナリオを含める
+5. **ドキュメント化**: 包括的な例とユースケース
+6. **ロギング**: 分析のためにSupabaseに実行をログ記録
 
-## Success Metrics
+## 成功指標
 
-After creating a skill, verify:
-- [ ] SKILL.md file exists with valid frontmatter
-- [ ] Description is clear and concise
-- [ ] Triggers are specific and unambiguous
-- [ ] Workflow steps are detailed
-- [ ] Example usage is provided
-- [ ] Skill registered in Supabase `skills` table
-- [ ] Documentation updated
+スキル作成後、以下を確認します:
+- [ ] 有効なフロントマターを持つSKILL.mdファイルが存在する
+- [ ] 説明が明確で簡潔である
+- [ ] トリガーが具体的で曖昧でない
+- [ ] ワークフローステップが詳細に記載されている
+- [ ] 使用例が提供されている
+- [ ] Supabaseの`skills`テーブルにスキルが登録されている
+- [ ] ドキュメントが更新されている
 
 ---
 
-**Remember**: Good skills are self-documenting, composable, and handle errors gracefully.
+**注意**: 優れたスキルは、自己文書化され、組み合わせ可能で、エラーを適切に処理します。
