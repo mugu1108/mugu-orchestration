@@ -1,0 +1,54 @@
+{
+  "name": "mugu-orchestration",
+  "version": "0.1.0",
+  "description": "Personal orchestration system for work automation with Claude Code",
+  "author": "Seiji",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mugu-orch": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node tests/run-all.js",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "cli": "node dist/cli/index.js",
+    "setup": "node scripts/setup-supabase.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "dotenv": "^16.3.1",
+    "zod": "^3.22.4",
+    "date-fns": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/inquirer": "^9.0.7",
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "prettier": "^3.1.1",
+    "c8": "^9.0.0",
+    "supabase": "^1.142.0"
+  },
+  "keywords": [
+    "claude-code",
+    "orchestration",
+    "automation",
+    "workflow",
+    "supabase",
+    "mcp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mugu-orchestration.git"
+  }
+}

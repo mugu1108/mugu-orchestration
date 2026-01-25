@@ -1,0 +1,39 @@
+{
+  "name": "mugu-orchestration",
+  "owner": {
+    "name": "Seiji",
+    "email": "your.email@example.com"
+  },
+  "metadata": {
+    "description": "Personal work orchestration system with Supabase integration"
+  },
+  "plugins": [
+    {
+      "name": "mugu-orchestration",
+      "source": "./",
+      "description": "Complete personal orchestration system for seminar preparation, time tracking, invoicing, and workflow automation",
+      "author": {
+        "name": "Seiji"
+      },
+      "homepage": "https://github.com/seiji/mugu-orchestration",
+      "repository": "https://github.com/seiji/mugu-orchestration",
+      "license": "MIT",
+      "keywords": [
+        "orchestration",
+        "automation",
+        "supabase",
+        "seminar",
+        "invoicing",
+        "workflow"
+      ],
+      "category": "workflow",
+      "tags": [
+        "automation",
+        "supabase",
+        "personal-productivity",
+        "seminar",
+        "invoicing"
+      ]
+    }
+  ]
+}
