@@ -261,6 +261,82 @@ Hooksを設定することで：
 - ワークフローを効率化
 - コード品質を自動維持
 
+## エージェント
+
+mugu-orchestrationは、特定の専門タスクを自動化する専門エージェントを提供します。
+
+### planner
+実装計画を作成する専門エージェント。複雑な機能や実装タスクの詳細な計画を作成し、要件分析、アーキテクチャ設計、ステップ分解を行います。
+
+**使用方法**:
+```
+/plan [機能の説明]
+```
+
+**詳細**: [agents/planner.md](agents/planner.md)
+
+### code-reviewer
+コードの品質、可読性、保守性を自動的にレビューする専門エージェント。ベストプラクティスへの準拠、潜在的なバグ、パフォーマンス問題を検出します。
+
+**使用方法**:
+```
+/code-review [ファイルパス（省略可）]
+```
+
+**詳細**: [agents/code-reviewer.md](agents/code-reviewer.md)
+
+### security-reviewer
+コードのセキュリティ脆弱性を専門的に分析する専門エージェント。OWASP Top 10などの業界標準に基づいた包括的なセキュリティチェックを実施します。
+
+**詳細**: [agents/security-reviewer.md](agents/security-reviewer.md)
+
+### doc-updater
+コード変更に応じてドキュメントを自動的に更新し、コードとドキュメントの一貫性を維持する専門エージェント。
+
+**詳細**: [agents/doc-updater.md](agents/doc-updater.md)
+
+## コマンド
+
+### /plan
+実装計画を作成します。複雑な機能や実装タスクの詳細な計画を作成し、要件分析、アーキテクチャ設計、ステップ分解を行います。
+
+**使用例**:
+```
+/plan 請求書生成機能を追加したい
+```
+
+**詳細**: [commands/plan.md](commands/plan.md)
+
+### /code-review
+コードの品質を包括的にレビューします。ベストプラクティスへの準拠、潜在的なバグ、パフォーマンス問題を検出し、改善提案を行います。
+
+**使用例**:
+```
+/code-review src/invoicing/
+```
+
+**詳細**: [commands/code-review.md](commands/code-review.md)
+
+## バージョン履歴
+
+- **v0.3.0** (2026-01-26) - フェーズ2完了: エージェント追加
+  - planner エージェント追加
+  - code-reviewer エージェント追加
+  - security-reviewer エージェント追加
+  - doc-updater エージェント追加
+  - /plan コマンド追加
+  - /code-review コマンド追加
+  - docs/roadmap.md 追加
+- **v0.2.0** (2026-01-26) - フェーズ1完了: 基盤整備
+  - Rules（ルール）追加
+  - Hooks（フック）追加
+  - ドキュメント日本語化
+- **v0.1.0** (2026-01-25) - 初期セットアップ
+
+## ロードマップ
+
+今後の計画については [docs/roadmap.md](docs/roadmap.md) を参照してください。
+
 ## 今後の機能拡張
 
 - セミナースライド生成（Marp統合）

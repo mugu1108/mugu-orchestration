@@ -8,7 +8,7 @@
   "homepage": "https://github.com/mugu1108/mugu-orchestration",
   "repository": "https://github.com/mugu1108/mugu-orchestration",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "keywords": [
     "claude-code",
     "orchestration",
