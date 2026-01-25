@@ -14,35 +14,35 @@
   - README.md
   - 各種ルールファイル
 
-## フェーズ2: コア機能の追加 ← 次のステップ
+## フェーズ2: コア機能の追加 ✅ 完了
 
 ### エージェント
-- [ ] **planner** - 実装計画作成
+- ✅ **planner** - 実装計画作成
   - 複雑な機能の実装計画を作成
   - 要件分析、アーキテクチャレビュー、ステップ分解
   - Opusモデルを使用して高品質な計画を生成
 
-- [ ] **code-reviewer** - コード品質レビュー
+- ✅ **code-reviewer** - コード品質レビュー
   - コード品質とセキュリティの自動レビュー
   - ベストプラクティスへの準拠チェック
   - 潜在的な問題の早期発見
 
-- [ ] **security-reviewer** - セキュリティチェック
+- ✅ **security-reviewer** - セキュリティチェック
   - 脆弱性の分析
   - OWASP Top 10のチェック
   - API key漏洩などのセキュリティリスク検出
 
-- [ ] **doc-updater** - ドキュメント同期
+- ✅ **doc-updater** - ドキュメント同期
   - コード変更に応じてドキュメントを自動更新
   - README、SKILL.mdなどの同期
   - ドキュメントの一貫性維持
 
 ### コマンド
-- [ ] **/plan** - 計画作成モード
+- ✅ **/plan** - 計画作成モード
   - plannerエージェントを呼び出す
   - 実装前の計画策定を習慣化
 
-- [ ] **/code-review** - コードレビュー実行
+- ✅ **/code-review** - コードレビュー実行
   - code-reviewerエージェントを呼び出す
   - Pull Request前の品質チェック
 
@@ -78,11 +78,6 @@
   - PDF出力機能
 
 ## 将来的に検討
-
-### コマンド
-- **/build-fix** - ビルドエラーの迅速な解決
-  - ビルドエラーを自動解析
-  - 修正案の提示
 
 ### ルール
 - **performance.md** - パフォーマンス最適化の基準
@@ -125,14 +120,43 @@
 - ✅ 通知機能で重要な情報を見逃さない
 - ✅ 請求書生成が自動化され、請求業務が効率化される
 
+## テスト結果
+
+### フェーズ2テスト
+- ✅ **planner エージェント & /plan コマンド** (2026-01-26)
+  - テストドキュメント: `docs/tests/plan-command-test.md`
+  - 結果: 正常動作確認済み
+
+- ✅ **code-reviewer エージェント & /code-review コマンド** (2026-01-26)
+  - テストドキュメント: `docs/tests/code-review-command-test.md`
+  - 結果: 実装完了、スキル登録済み
+
+- ✅ **security-reviewer エージェント & /security-review コマンド** (2026-01-26)
+  - テストドキュメント: `docs/tests/security-reviewer-implementation.md`
+  - 結果: 実装完了、スキル登録済み
+
+- ✅ **doc-updater エージェント & /doc-update コマンド** (2026-01-26)
+  - テストドキュメント: `docs/tests/doc-updater-implementation.md`
+  - 結果: 実装完了、スキル登録済み
+
 ## バージョン履歴
 
+- **v0.3.0** (2026-01-26) - フェーズ2完了: エージェントとコマンドの追加
+  - planner エージェント & /plan コマンド
+  - code-reviewer エージェント & /code-review コマンド
+  - security-reviewer エージェント & /security-review コマンド
+  - doc-updater エージェント & /doc-update コマンド
+- **v0.2.1** (2026-01-26) - フェーズ2部分完了: planner & code-reviewer
 - **v0.2.0** (2026-01-26) - フェーズ1完了: 基盤整備
 - **v0.1.0** (2026-01-25) - 初期セットアップ
 
 ## 次のステップ
 
 1. ✅ docs/roadmap.md を作成
-2. エージェントとコマンドを1つずつ追加
-3. 各追加後に動作確認とコミット
-4. すべて完了後、GitHubにプッシュ
+2. ✅ planner エージェントと /plan コマンドを追加（テスト完了）
+3. ✅ code-reviewer エージェントと /code-review コマンドを追加（実装完了）
+4. ✅ security-reviewer エージェントと /security-review コマンドを追加（実装完了）
+5. ✅ doc-updater エージェントと /doc-update コマンドを追加（実装完了）
+6. ✅ フェーズ2完了
+7. GitHubにプッシュ
+8. フェーズ3（セミナー資料生成機能の強化）に移行
