@@ -32,7 +32,10 @@ mugu-orchestration/
 │   │   └── skill-manager.ts # スキル管理
 │   └── types/              # TypeScript型定義
 ├── skills/
-│   └── meta-skill/         # スキル生成スキル
+│   ├── meta-skill/         # スキル生成スキル
+│   └── slide/              # Marpスライド生成スキル
+│       ├── templates/      # スライドテンプレート
+│       └── references/     # デザインリファレンス
 ├── rules/                  # コード品質・セキュリティルール
 │   ├── security.md         # セキュリティ基準
 │   ├── coding-style.md     # コーディングスタイル
@@ -317,8 +320,23 @@ mugu-orchestrationは、特定の専門タスクを自動化する専門エー�
 
 **詳細**: [commands/code-review.md](commands/code-review.md)
 
+### /slide
+Marp形式のプレゼンテーションスライドを自動生成します。セミナー資料、ワークショップ資料、製品紹介スライドを、ビジュアル階層と一貫性のあるデザインで作成します。
+
+**使用例**:
+```
+/slide Next.js 15の新機能についてのセミナー資料を作成してください
+```
+
+**詳細**: [commands/slide.md](commands/slide.md)
+
 ## バージョン履歴
 
+- **v0.4.0** (2026-01-27) - フェーズ3完了: セミナー資料生成機能
+  - slide スキル追加（Marp形式スライド自動生成）
+  - 3種類のテンプレート追加（general-presentation、hands-on-workshop、product-intro）
+  - 3種類のリファレンス追加（visual-hierarchy、emoji-usage、marp-syntax）
+  - /slide コマンド追加
 - **v0.3.0** (2026-01-26) - フェーズ2完了: エージェント追加
   - planner エージェント追加
   - code-reviewer エージェント追加
@@ -339,7 +357,6 @@ mugu-orchestrationは、特定の専門タスクを自動化する専門エー�
 
 ## 今後の機能拡張
 
-- セミナースライド生成（Marp統合）
 - Slack/Discord通知付き時間追跡
 - 請求書生成
 - 追加の自動化ワークフロー

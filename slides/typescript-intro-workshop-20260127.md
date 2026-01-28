@@ -245,7 +245,7 @@ TypeScriptは、JavaScriptに静的型付けを追加した言語です。
 
 ---
 
-# 理論: 型アノテーション
+# 理論: 型アノテーション（1/2）
 
 TypeScriptでは、変数や関数に型を指定できます：
 
@@ -257,7 +257,13 @@ let isStudent: boolean = true
 
 // 配列
 let scores: number[] = [80, 90, 100]
+```
 
+---
+
+# 理論: 型アノテーション（2/2）
+
+```typescript
 // 関数
 function greet(name: string): string {
   return `Hello, ${name}!`
@@ -385,31 +391,36 @@ function Button({ label, onClick }: ButtonProps) {
 ## タスク
 型安全なButtonコンポーネントを作成しましょう
 
-## ステップ
+## ステップ1: Props定義
 
-1. **コンポーネントファイル作成**
-   ```typescript
-   // src/components/Button.tsx
-   interface ButtonProps {
-     label: string;
-     onClick: () => void;
-     variant?: 'primary' | 'secondary';
-   }
-   ```
+```typescript
+// src/components/Button.tsx
+interface ButtonProps {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+}
+```
 
-2. **コンポーネント実装**
-   ```typescript
-   export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
-     return (
-       <button
-         className={`btn btn-${variant}`}
-         onClick={onClick}
-       >
-         {label}
-       </button>
-     )
-   }
-   ```
+---
+
+<!-- _class: hands-on -->
+
+# 実習3: React Componentの作成（実装）
+
+## ステップ2: コンポーネント実装
+
+```typescript
+export function Button({
+  label, onClick, variant = 'primary'
+}: ButtonProps) {
+  return (
+    <button className={`btn-${variant}`} onClick={onClick}>
+      {label}
+    </button>
+  )
+}
+```
 
 ---
 
@@ -533,24 +544,33 @@ type TodoState = {
 
 <!-- _class: hands-on -->
 
-# 実習4: Todoアプリの構築（2/3）
+# 実習4: Todoアプリの構築（2/4）
 
-3. **操作関数の実装**
+3. **addTodo関数**
    ```typescript
    const addTodo = () => {
      if (!input.trim()) return
      const newTodo: Todo = {
-       id: Date.now(),
-       text: input,
-       completed: false
+       id: Date.now(), text: input, completed: false
      }
      setTodos([...todos, newTodo])
      setInput('')
    }
+   ```
 
+---
+
+<!-- _class: hands-on -->
+
+# 実習4: Todoアプリの構築（3/4）
+
+4. **toggleTodoとdeleteTodo関数**
+   ```typescript
    const toggleTodo = (id: number) => {
      setTodos(todos.map(todo =>
-       todo.id === id ? { ...todo, completed: !todo.completed } : todo
+       todo.id === id
+         ? { ...todo, completed: !todo.completed }
+         : todo
      ))
    }
 
@@ -563,33 +583,35 @@ type TodoState = {
 
 <!-- _class: hands-on -->
 
-# 実習4: Todoアプリの構築（3/3）
+# 実習4: Todoアプリの構築（4/4）
 
-4. **UIの実装**
+5. **UIの実装: 入力部分**
    ```typescript
    return (
      <div className="App">
        <h1>Todo App</h1>
-       <div>
-         <input
-           value={input}
-           onChange={(e) => setInput(e.target.value)}
-           placeholder="新しいTodoを入力"
-         />
-         <button onClick={addTodo}>追加</button>
-       </div>
+       <input
+         value={input}
+         onChange={(e) => setInput(e.target.value)}
+       />
+       <button onClick={addTodo}>追加</button>
+   ```
+
+---
+
+<!-- _class: hands-on -->
+
+# 実習4: Todoアプリの構築（完成）
+
+6. **UIの実装: リスト部分**
+   ```typescript
        <ul>
          {todos.map(todo => (
            <li key={todo.id}>
-             <input
-               type="checkbox"
+             <input type="checkbox"
                checked={todo.completed}
-               onChange={() => toggleTodo(todo.id)}
-             />
-             <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-               {todo.text}
-             </span>
-             <button onClick={() => deleteTodo(todo.id)}>削除</button>
+               onChange={() => toggleTodo(todo.id)} />
+             {todo.text}
            </li>
          ))}
        </ul>

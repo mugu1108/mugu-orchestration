@@ -213,7 +213,7 @@ Next.js 15は、Partial PrerendingとReact 19サポートにより、静的と�
 
 ---
 
-# 新しいアプローチ
+# 新しいアプローチ（1/2）
 
 Next.js 15を使った実装：
 
@@ -224,9 +224,16 @@ export const experimental_ppr = true
 export default function Page() {
   return (
     <div>
-      <StaticContent /> {/* 静的にプリレンダリング */}
+      <StaticContent />
+```
+
+---
+
+# 新しいアプローチ（2/2）
+
+```typescript
       <Suspense fallback={<Skeleton />}>
-        <DynamicContent /> {/* 動的に読み込み */}
+        <DynamicContent />
       </Suspense>
     </div>
   )
@@ -234,9 +241,8 @@ export default function Page() {
 ```
 
 **改善点**:
-- ✅ 静的シェルで即座に表示、動的部分は後から読み込み
+- ✅ 静的シェルで即座に表示
 - ✅ TTI（Time to Interactive）が大幅に改善
-- ✅ SEOとパフォーマンスを両立
 
 ---
 
@@ -312,18 +318,14 @@ import { Suspense } from 'react'
 export default function Page() {
   return (
     <>
-      <Header /> {/* 静的 */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <UserProfile /> {/* 動的 */}
+      <Header />
+      <Suspense fallback={<Loading />}>
+        <UserProfile />
       </Suspense>
     </>
   )
 }
 ```
-
-**ポイント**:
-- Suspenseで囲まれた部分が自動的に動的コンテンツになる
-- fallbackは即座に表示される
 
 ---
 
@@ -395,12 +397,9 @@ async function UserProfile() {
 export default function ProductPage() {
   return (
     <>
-      <ProductDetails /> {/* 静的 */}
+      <ProductDetails />
       <Suspense fallback={<Skeleton />}>
-        <StockStatus /> {/* 動的: リアルタイム在庫 */}
-      </Suspense>
-      <Suspense fallback={<Skeleton />}>
-        <UserReviews /> {/* 動的: 最新レビュー */}
+        <StockStatus />
       </Suspense>
     </>
   )
@@ -409,7 +408,6 @@ export default function ProductPage() {
 
 ## 結果
 - 初期表示が0.5秒→0.2秒に短縮
-- SEOランキングが15%向上
 
 ---
 
@@ -423,12 +421,10 @@ export default function ProductPage() {
 export default function Dashboard() {
   return (
     <>
-      <Sidebar /> {/* 静的 */}
-      <main>
-        <Suspense fallback={<ChartSkeleton />}>
-          <AnalyticsChart /> {/* 動的: 最新データ */}
-        </Suspense>
-      </main>
+      <Sidebar />
+      <Suspense fallback={<ChartSkeleton />}>
+        <AnalyticsChart />
+      </Suspense>
     </>
   )
 }
@@ -436,7 +432,6 @@ export default function Dashboard() {
 
 ## 結果
 - ページ読み込み時間が40%削減
-- ユーザーの作業効率が向上
 
 ---
 
@@ -450,9 +445,9 @@ export default function Dashboard() {
 export default function BlogPost() {
   return (
     <>
-      <ArticleContent /> {/* 静的 */}
-      <Suspense fallback={<CommentsSkeleton />}>
-        <Comments /> {/* 動的: 最新コメント */}
+      <ArticleContent />
+      <Suspense fallback={<Skeleton />}>
+        <Comments />
       </Suspense>
     </>
   )
@@ -461,7 +456,6 @@ export default function BlogPost() {
 
 ## 結果
 - Core Web Vitalsスコアが大幅改善
-- 直帰率が12%低下
 
 ---
 

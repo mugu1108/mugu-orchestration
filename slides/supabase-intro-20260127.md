@@ -307,11 +307,6 @@ USING (auth.uid() = user_id);
 
 ### 使用例
 ```typescript
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-
-// Email/Passwordでサインアップ
 const { data, error } = await supabase.auth.signUp({
   email: 'user@example.com',
   password: 'secure-password'
@@ -329,18 +324,14 @@ const { data, error } = await supabase.auth.signUp({
 ### 主な利点
 - ✅ WebSocketベースの双方向通信
 - ✅ データベース変更を自動検知
-- ✅ チャット、コラボレーションアプリに最適
 
 ### 使用例
 ```typescript
-// リアルタイムで投稿を監視
 const subscription = supabase
   .channel('posts')
   .on('postgres_changes',
     { event: 'INSERT', schema: 'public', table: 'posts' },
-    (payload) => {
-      console.log('新しい投稿:', payload.new)
-    }
+    (payload) => console.log('新しい投稿:', payload.new)
   )
   .subscribe()
 ```
@@ -439,21 +430,27 @@ const supabase = createClient(
 
 ---
 
-# デモ: ステップ2 - フロントエンド実装（2/3）
+# デモ: ステップ2 - フロントエンド実装（2/4）
 
-**データ操作**
+**データ取得と追加**
 
 ```typescript
 // Todoを取得
 const { data: todos } = await supabase
-  .from('todos')
-  .select('*')
+  .from('todos').select('*')
 
 // Todoを追加
 const { data, error } = await supabase
-  .from('todos')
-  .insert({ task: '買い物をする' })
+  .from('todos').insert({ task: '買い物をする' })
+```
 
+---
+
+# デモ: ステップ2 - フロントエンド実装（3/4）
+
+**データ更新**
+
+```typescript
 // Todoを更新
 await supabase
   .from('todos')
@@ -463,7 +460,7 @@ await supabase
 
 ---
 
-# デモ: ステップ2 - フロントエンド実装（3/3）
+# デモ: ステップ2 - フロントエンド実装（4/4）
 
 **リアルタイム監視**
 
@@ -472,10 +469,7 @@ supabase
   .channel('todos')
   .on('postgres_changes',
     { event: '*', schema: 'public', table: 'todos' },
-    (payload) => {
-      console.log('変更検知:', payload)
-      // UIを更新
-    }
+    (payload) => console.log('変更検知:', payload)
   )
   .subscribe()
 ```
