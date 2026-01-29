@@ -538,14 +538,14 @@ INVOICE_BANK_INFO=...
 
 ## 進捗チェックリスト
 
-### Phase 1: 基盤構築
+### Phase 1: 基盤構築 ✅ 完了
 
 #### 👤 ユーザータスク
-- [ ] **1-1** Slack App作成（api.slack.comでApp作成）
-- [ ] **1-2** Socket Mode有効化
-- [ ] **1-3** Bot Token (xoxb-) 取得
-- [ ] **1-4** App Token (xapp-) 取得
-- [ ] **1-5** Supabaseプロジェクト接続情報確認
+- [x] **1-1** Slack App作成（api.slack.comでApp作成）
+- [x] **1-2** Socket Mode有効化
+- [x] **1-3** Bot Token (xoxb-) 取得
+- [x] **1-4** App Token (xapp-) 取得
+- [x] **1-5** Supabaseプロジェクト接続情報確認
 
 #### 🤖 Claude Codeタスク
 - [x] **1-6** Supabaseテーブル作成SQL作成
@@ -558,56 +558,58 @@ INVOICE_BANK_INFO=...
 - [x] **1-10** skills/time-track/SKILL.md 作成
 
 #### Phase 1 完了条件
-- [ ] 全Slackトークンが取得済み
-- [ ] Supabase接続情報が確認済み
+- [x] 全Slackトークンが取得済み
+- [x] Supabase接続情報が確認済み
 - [x] 全エージェント・コマンド・スキルファイルが作成済み
 
 ---
 
-### Phase 2: time-tracker 実装
+### Phase 2: time-tracker 実装 🔄 進行中（Notion同期以外完了）
 
 #### 🤖 Claude Codeタスク
-- [ ] **2-1** Slack Bot基盤コード作成（Socket Mode接続）
-- [ ] **2-2** `/in [プロジェクト名]` コマンド実装
-  - [ ] プロジェクト検索機能
-  - [ ] 作業開始記録機能
-  - [ ] Slack応答メッセージ
-- [ ] **2-3** `/out` コマンド実装
-  - [ ] 作業終了記録機能
-  - [ ] 経過時間計算
-  - [ ] 今日の合計計算
-  - [ ] Slack応答メッセージ
-- [ ] **2-4** `/status` コマンド実装（オプション）
-  - [ ] 現在の作業状態取得
-  - [ ] 経過時間表示
-- [ ] **2-5** Supabase連携実装
-  - [ ] projects テーブル読み取り
-  - [ ] time_logs テーブル読み書き
-- [ ] **2-6** Notion同期実装
+- [x] **2-1** Slack Bot基盤コード作成（Socket Mode接続）
+  - 実装: `src/bots/time-tracker/index.ts`
+- [x] **2-2** `/in [プロジェクト名]` コマンド実装
+  - [x] プロジェクト検索機能
+  - [x] 作業開始記録機能
+  - [x] Slack応答メッセージ
+- [x] **2-3** `/out` コマンド実装
+  - [x] 作業終了記録機能
+  - [x] 経過時間計算
+  - [x] 今日の合計計算
+  - [x] Slack応答メッセージ
+- [x] **2-4** `/status` コマンド実装
+  - [x] 現在の作業状態取得
+  - [x] 経過時間表示
+- [x] **2-5** Supabase連携実装
+  - [x] projects テーブル読み取り
+  - [x] time_logs テーブル読み書き
+  - 実装: `src/bots/time-tracker/services/supabase.ts`
+- [ ] **2-6** Notion同期実装（未実装）
   - [ ] 作業ログDB同期
 
 #### 👤 ユーザータスク
-- [ ] **2-7** .envファイルに環境変数設定
-  - [ ] SLACK_BOT_TOKEN
-  - [ ] SLACK_APP_TOKEN
-  - [ ] SLACK_CHANNEL_ID
-  - [ ] SUPABASE_URL
-  - [ ] SUPABASE_SERVICE_ROLE_KEY
-  - [ ] NOTION_API_KEY
-  - [ ] NOTION_TIME_LOGS_DB_ID
-- [ ] **2-8** Supabaseでテーブル作成（SQLを実行）
-- [ ] **2-9** Notionで作業ログDB作成
-- [ ] **2-10** `/in` コマンド動作確認
-- [ ] **2-11** `/out` コマンド動作確認
-- [ ] **2-12** Supabaseにデータが保存されることを確認
-- [ ] **2-13** Notionにデータが同期されることを確認
+- [x] **2-7** .envファイルに環境変数設定
+  - [x] SLACK_BOT_TOKEN
+  - [x] SLACK_APP_TOKEN
+  - [x] SLACK_CHANNEL_ID
+  - [x] SUPABASE_URL
+  - [x] SUPABASE_SERVICE_ROLE_KEY
+  - [ ] NOTION_API_KEY（未設定）
+  - [ ] NOTION_TIME_LOGS_DB_ID（未設定）
+- [x] **2-8** Supabaseでテーブル作成（SQLを実行）
+- [ ] **2-9** Notionで作業ログDB作成（未実施）
+- [x] **2-10** `/in` コマンド動作確認
+- [x] **2-11** `/out` コマンド動作確認
+- [x] **2-12** Supabaseにデータが保存されることを確認
+- [ ] **2-13** Notionにデータが同期されることを確認（未実施）
 
 #### Phase 2 完了条件
-- [ ] `/in` で作業開始できる
-- [ ] `/out` で作業終了できる
-- [ ] 今日の合計時間が通知される
-- [ ] Supabaseに正確にデータが保存される
-- [ ] Notionで作業ログが閲覧できる
+- [x] `/in` で作業開始できる
+- [x] `/out` で作業終了できる
+- [x] 今日の合計時間が通知される
+- [x] Supabaseに正確にデータが保存される
+- [ ] Notionで作業ログが閲覧できる（未実装）
 
 ---
 
@@ -680,27 +682,27 @@ INVOICE_BANK_INFO=...
 
 | Phase | 進捗 | ステータス |
 |-------|------|-----------|
-| Phase 1: 基盤構築 | 5/10 | 🔄 進行中（🤖完了、👤待ち） |
-| Phase 2: time-tracker 実装 | 0/13 | ⬜ 未着手 |
+| Phase 1: 基盤構築 | 10/10 | ✅ 完了 |
+| Phase 2: time-tracker 実装 | 11/13 | 🔄 進行中（Notion同期以外完了） |
 | Phase 3: invoice-generator 実装 | 0/9 | ⬜ 未着手 |
 | Phase 4: テスト・調整 | 0/6 | ⬜ 未着手 |
-| **合計** | **5/38** | **13%** |
+| **合計** | **21/38** | **55%** |
 
 ---
 
 ## 成功基準
 
-- [ ] `/in` `/out` でSlackから時間記録ができる
-- [ ] プロジェクト別に時間が記録される
-- [ ] Supabaseに正確にデータが保存される
-- [ ] Notionで作業ログが閲覧できる
-- [ ] `/out` 時に今日の合計が通知される
-- [ ] 月末に自動で締め日通知が届く
-- [ ] Excel形式の請求書が自動生成される
-- [ ] 請求書がSlackにアップロードされる
+- [x] `/in` `/out` でSlackから時間記録ができる
+- [x] プロジェクト別に時間が記録される
+- [x] Supabaseに正確にデータが保存される
+- [ ] Notionで作業ログが閲覧できる（未実装）
+- [x] `/out` 時に今日の合計が通知される
+- [ ] 月末に自動で締め日通知が届く（未実装）
+- [ ] Excel形式の請求書が自動生成される（未実装）
+- [ ] 請求書がSlackにアップロードされる（未実装）
 
 ---
 
 **作成日**: 2026-01-28
-**最終更新**: 2026-01-28
-**ステータス**: 仕様策定完了
+**最終更新**: 2026-01-29
+**ステータス**: Phase 2進行中（time-tracker Slack Bot実装完了）

@@ -66,19 +66,26 @@
   - slideスキルを呼び出すコマンド
   - 使用例とドキュメント完備
 
-## フェーズ4: 業務効率化機能
+## フェーズ4: 業務効率化機能 🔄 進行中
 
-- [ ] 時間追跡スキル
-  - プロジェクト別時間管理
-  - レポート生成
+### time-tracker Slack Bot ✅ 実装完了
+- ✅ Slack Bot基盤（Socket Mode）
+- ✅ `/in [プロジェクト名]` コマンド
+- ✅ `/out` コマンド
+- ✅ `/status` コマンド
+- ✅ Supabase連携（projects, time_logs テーブル）
+- ⬜ Notion同期（未実装）
 
-- [ ] Slack/Discord通知
-  - タスク完了通知
-  - エラー通知
+### slide-creator / slide-reviewer エージェント ✅ 追加
+- ✅ slide-creator エージェント（slideスキルのエージェント化）
+- ✅ slide-reviewer サブエージェント（フォーマット・内容レビュー）
 
-- [ ] 請求書生成スキル
-  - 時間追跡データからの請求書作成
-  - PDF出力機能
+### 請求書生成 ⬜ 未実装
+- ⬜ invoice-generator サブエージェント
+  - 月末検知ロジック
+  - 締め日通知
+  - Excel請求書生成
+  - Slackアップロード
 
 ## 将来的に検討
 
@@ -120,9 +127,9 @@
 - ✅ 自動生成機能で作業時間が短縮される
 
 ### フェーズ4完了時
-- ✅ 時間追跡が自動化され、正確なデータが記録される
-- ✅ 通知機能で重要な情報を見逃さない
-- ✅ 請求書生成が自動化され、請求業務が効率化される
+- ✅ 時間追跡が自動化され、正確なデータが記録される → **実装完了**
+- 🔄 通知機能で重要な情報を見逃さない → Slack通知実装済み、Notion同期未実装
+- ⬜ 請求書生成が自動化され、請求業務が効率化される → 未実装
 
 ## テスト結果
 
@@ -145,6 +152,11 @@
 
 ## バージョン履歴
 
+- **v0.5.0** (2026-01-29) - フェーズ4進行中: 業務効率化機能
+  - time-tracker Slack Bot実装（/in, /out, /statusコマンド）
+  - Supabase連携（projects, time_logsテーブル）
+  - slide-creator エージェント追加
+  - slide-reviewer サブエージェント追加
 - **v0.4.0** (2026-01-27) - フェーズ3完了: セミナー資料生成機能
   - slide スキル追加（Marp形式スライド自動生成）
   - 3種類のテンプレート追加（general-presentation、hands-on-workshop、product-intro）
@@ -168,5 +180,9 @@
 5. ✅ doc-updater エージェントと /doc-update コマンドを追加（実装完了）
 6. ✅ フェーズ2完了
 7. ✅ フェーズ3完了（セミナー資料生成機能の強化）
-8. GitHubにプッシュ
-9. フェーズ4（業務効率化機能）に移行
+8. ✅ time-tracker Slack Bot実装（/in, /out, /statusコマンド）
+9. ✅ slide-creator / slide-reviewer エージェント追加
+10. 🔄 フェーズ4進行中
+11. ⬜ invoice-generator サブエージェント実装
+12. ⬜ Notion同期実装
+13. GitHubにプッシュ

@@ -26,13 +26,25 @@ mugu-orchestrationは、Claude Agent SDKをカスタムスキル、エージェ�
 ```
 mugu-orchestration/
 ├── src/
+│   ├── bots/
+│   │   └── time-tracker/   # 時間追跡Slack Bot
+│   │       ├── index.ts    # Botエントリーポイント
+│   │       ├── services/   # Supabase連携
+│   │       └── utils/      # ユーティリティ
 │   ├── cli/                 # CLIコマンド
 │   ├── lib/
 │   │   ├── supabase/       # Supabaseクライアントとスキーマ
 │   │   └── skill-manager.ts # スキル管理
 │   └── types/              # TypeScript型定義
+├── agents/                 # エージェント定義
+│   ├── time-tracker.md     # 時間追跡エージェント
+│   ├── invoice-generator.md # 請求書生成サブエージェント
+│   ├── slide-creator.md    # スライド生成エージェント
+│   ├── slide-reviewer.md   # スライドレビューサブエージェント
+│   └── ...                 # その他のエージェント
 ├── skills/
 │   ├── meta-skill/         # スキル生成スキル
+│   ├── time-track/         # 時間追跡スキル
 │   └── slide/              # Marpスライド生成スキル
 │       ├── templates/      # スライドテンプレート
 │       └── references/     # デザインリファレンス
@@ -298,6 +310,38 @@ mugu-orchestrationは、特定の専門タスクを自動化する専門エー�
 
 **詳細**: [agents/doc-updater.md](agents/doc-updater.md)
 
+### time-tracker
+業務委託の作業時間を記録・管理するSlack Botエージェント。Slackを通じて作業の開始・終了を記録し、Supabaseにデータを保存します。
+
+**Slackコマンド**:
+```
+@timebot /in [プロジェクト名]  - 作業開始
+@timebot /out                  - 作業終了
+@timebot /status               - 状態確認
+```
+
+**詳細**: [agents/time-tracker.md](agents/time-tracker.md)
+
+### invoice-generator（time-trackerのサブエージェント）
+月末に自動で請求書を生成するサブエージェント。月間の作業時間を集計し、Excel形式の請求書を生成してSlackにアップロードします。
+
+**詳細**: [agents/invoice-generator.md](agents/invoice-generator.md)
+
+### slide-creator
+Marp形式のプレゼンテーションスライドを自動生成する専門エージェント。セミナー資料、ワークショップ資料、製品紹介スライドを、ビジュアル階層と一貫性のあるデザインで作成します。
+
+**使用方法**:
+```
+/slide [トピック]
+```
+
+**詳細**: [agents/slide-creator.md](agents/slide-creator.md)
+
+### slide-reviewer（slide-creatorのサブエージェント）
+生成されたMarpスライドをレビュー・ブラッシュアップするサブエージェント。フォーマットと内容の両面からチェックを行い、修正提案または自動修正を実施します。
+
+**詳細**: [agents/slide-reviewer.md](agents/slide-reviewer.md)
+
 ## コマンド
 
 ### /plan
@@ -332,6 +376,11 @@ Marp形式のプレゼンテーションスライドを自動生成します。�
 
 ## バージョン履歴
 
+- **v0.5.0** (2026-01-29) - フェーズ4進行中: 業務効率化機能
+  - time-tracker Slack Bot実装（/in, /out, /statusコマンド）
+  - Supabase連携（projects, time_logs, invoicesテーブル）
+  - slide-creator エージェント追加（slideスキルのエージェント化）
+  - slide-reviewer サブエージェント追加（フォーマット・内容レビュー）
 - **v0.4.0** (2026-01-27) - フェーズ3完了: セミナー資料生成機能
   - slide スキル追加（Marp形式スライド自動生成）
   - 3種類のテンプレート追加（general-presentation、hands-on-workshop、product-intro）
@@ -357,8 +406,9 @@ Marp形式のプレゼンテーションスライドを自動生成します。�
 
 ## 今後の機能拡張
 
-- Slack/Discord通知付き時間追跡
-- 請求書生成
+- ✅ ~~Slack/Discord通知付き時間追跡~~ - 実装完了（time-tracker）
+- 🔄 請求書生成 - 仕様策定完了、実装待ち（invoice-generator）
+- 🔄 Notion同期 - 仕様策定完了、実装待ち
 - 追加の自動化ワークフロー
 
 ## ライセンス
