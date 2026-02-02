@@ -174,3 +174,75 @@ export async function addWorkTime(
   }
   return data as TimeLog;
 }
+
+// 月間集計データの型
+export interface MonthlySummary {
+  project_id: string;
+  project_name: string;
+  client_name: string;
+  hourly_rate: number;
+  total_minutes: number;
+  total_amount: number;
+  session_count: number;
+}
+
+// 指定月の集計を取得
+export async function getMonthlySummary(yearMonth: string): Promise<MonthlySummary[]> {
+  // yearMonth: 'YYYY-MM' 形式
+  const startDate = `${yearMonth}-01`;
+  const [year, month] = yearMonth.split('-').map(Number);
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = month === 12 ? year + 1 : year;
+  const endDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+
+  const { data, error } = await supabase
+    .from('time_logs')
+    .select(`
+      project_id,
+      duration_minutes,
+      projects!inner (
+        name,
+        client_name,
+        hourly_rate
+      )
+    `)
+    .gte('started_at', startDate)
+    .lt('started_at', endDate)
+    .not('ended_at', 'is', null);
+
+  if (error || !data) {
+    console.error('月間集計エラー:', error);
+    return [];
+  }
+
+  // プロジェクト別に集計
+  const summaryMap = new Map<string, MonthlySummary>();
+
+  for (const log of data) {
+    const projectId = log.project_id;
+    const project = log.projects as unknown as { name: string; client_name: string; hourly_rate: number };
+
+    if (!summaryMap.has(projectId)) {
+      summaryMap.set(projectId, {
+        project_id: projectId,
+        project_name: project.name,
+        client_name: project.client_name,
+        hourly_rate: project.hourly_rate,
+        total_minutes: 0,
+        total_amount: 0,
+        session_count: 0,
+      });
+    }
+
+    const summary = summaryMap.get(projectId)!;
+    summary.total_minutes += log.duration_minutes || 0;
+    summary.session_count += 1;
+  }
+
+  // 金額を計算
+  for (const summary of summaryMap.values()) {
+    summary.total_amount = Math.round((summary.total_minutes / 60) * summary.hourly_rate);
+  }
+
+  return Array.from(summaryMap.values()).sort((a, b) => b.total_minutes - a.total_minutes);
+}

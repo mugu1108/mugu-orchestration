@@ -311,13 +311,20 @@ mugu-orchestrationは、特定の専門タスクを自動化する専門エー�
 **詳細**: [agents/doc-updater.md](agents/doc-updater.md)
 
 ### time-tracker
-業務委託の作業時間を記録・管理するSlack Botエージェント。Slackを通じて作業の開始・終了を記録し、Supabaseにデータを保存します。
+業務委託の作業時間を記録・管理するSlack Botエージェント。Slackを通じて作業の開始・終了を記録し、Supabaseにデータを保存します。月末には自動で月間サマリーを通知します。
 
 **Slackコマンド**:
 ```
-@timebot /in [プロジェクト名]  - 作業開始
-@timebot /out                  - 作業終了
-@timebot /status               - 状態確認
+@timebot /in [プロジェクト名]       - 作業開始
+@timebot /out                       - 作業終了
+@timebot /status                    - 状態確認
+@timebot /add [プロジェクト] [時間] - 作業時間追加（例: 2時間, 30分, 2h30m）
+@timebot /summary [YYYY-MM]         - 月間サマリー（省略時は今月）
+```
+
+**起動方法**:
+```bash
+npm run time-tracker
 ```
 
 **詳細**: [agents/time-tracker.md](agents/time-tracker.md)
@@ -376,6 +383,10 @@ Marp形式のプレゼンテーションスライドを自動生成します。�
 
 ## バージョン履歴
 
+- **v0.5.1** (2026-02-02) - time-tracker機能強化
+  - /add コマンド追加（作業時間の直接追加）
+  - /summary コマンド追加（月間サマリー表示）
+  - 月末自動通知機能（毎月末23:00に月間サマリー送信）
 - **v0.5.0** (2026-01-29) - フェーズ4進行中: 業務効率化機能
   - time-tracker Slack Bot実装（/in, /out, /statusコマンド）
   - Supabase連携（projects, time_logs, invoicesテーブル）

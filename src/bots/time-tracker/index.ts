@@ -1,5 +1,6 @@
 import { App, LogLevel } from '@slack/bolt';
 import { config } from 'dotenv';
+import cron from 'node-cron';
 import {
   getProjectByName,
   getActiveProjects,
@@ -8,6 +9,7 @@ import {
   endWork,
   getTodayTotalMinutes,
   addWorkTime,
+  getMonthlySummary,
 } from './services/supabase.js';
 import { formatDuration, formatTime } from './utils/format.js';
 
@@ -65,8 +67,11 @@ app.event('app_mention', async ({ event, say }) => {
       case 'add':
         await handleAddCommand(args, say);
         break;
+      case 'summary':
+        await handleSummaryCommand(args, say);
+        break;
       default:
-        await say('❓ 使用可能なコマンド:\n• `/in [プロジェクト名]` - 作業開始\n• `/out` - 作業終了\n• `/status` - 状態確認\n• `/add [プロジェクト名] [時間]` - 作業時間追加');
+        await say('❓ 使用可能なコマンド:\n• `/in [プロジェクト名]` - 作業開始\n• `/out` - 作業終了\n• `/status` - 状態確認\n• `/add [プロジェクト名] [時間]` - 作業時間追加\n• `/summary [YYYY-MM]` - 月間サマリー');
     }
   } catch (error) {
     console.error('エラー:', error);
@@ -254,12 +259,141 @@ async function handleAddCommand(args: string, say: (message: string) => Promise<
   await say(message);
 }
 
+// 金額をフォーマット
+function formatCurrency(amount: number): string {
+  return `¥${amount.toLocaleString()}`;
+}
+
+// 月末判定
+function isLastDayOfMonth(date: Date): boolean {
+  const tomorrow = new Date(date);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return date.getMonth() !== tomorrow.getMonth();
+}
+
+// 月間サマリーを送信
+async function sendMonthlySummary() {
+  if (!channelId) {
+    console.error('❌ SLACK_CHANNEL_ID が設定されていません');
+    return;
+  }
+
+  const now = new Date();
+  const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const displayMonth = `${now.getFullYear()}年${now.getMonth() + 1}月`;
+
+  console.log(`📊 ${displayMonth}の月間サマリーを生成中...`);
+
+  const summaries = await getMonthlySummary(yearMonth);
+
+  if (summaries.length === 0) {
+    await app.client.chat.postMessage({
+      channel: channelId,
+      text: `📅 本日は締め日です\n\n⚠️ ${displayMonth}の作業データがありません`,
+    });
+    return;
+  }
+
+  // サマリーメッセージを構築
+  let message = `📅 本日は締め日です\n\n【${displayMonth}の作業サマリー】\n\n`;
+
+  let totalMinutes = 0;
+  let totalAmount = 0;
+
+  for (const summary of summaries) {
+    const hours = formatDuration(summary.total_minutes);
+    message += `📁 ${summary.project_name}（${summary.client_name}）\n`;
+    message += `   ⏱️ 合計: ${hours}\n`;
+    message += `   💰 請求額: ${formatCurrency(summary.total_amount)}\n\n`;
+
+    totalMinutes += summary.total_minutes;
+    totalAmount += summary.total_amount;
+  }
+
+  message += `━━━━━━━━━━━━━━━━━━\n`;
+  message += `⏱️ 総作業時間: ${formatDuration(totalMinutes)}\n`;
+  message += `💰 総合計: ${formatCurrency(totalAmount)}`;
+
+  await app.client.chat.postMessage({
+    channel: channelId,
+    text: message,
+  });
+
+  console.log(`✅ ${displayMonth}の月間サマリーを送信しました`);
+}
+
+// /summary コマンド - 月間サマリー手動取得
+async function handleSummaryCommand(args: string, say: (message: string) => Promise<unknown>) {
+  // 引数がなければ今月
+  let yearMonth: string;
+  let displayMonth: string;
+
+  if (args) {
+    // YYYY-MM 形式をチェック
+    const match = args.match(/^(\d{4})-(\d{2})$/);
+    if (!match) {
+      await say('⚠️ 月の形式が正しくありません\n使用方法: `/summary` または `/summary 2026-01`');
+      return;
+    }
+    yearMonth = args;
+    displayMonth = `${match[1]}年${parseInt(match[2])}月`;
+  } else {
+    const now = new Date();
+    yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    displayMonth = `${now.getFullYear()}年${now.getMonth() + 1}月`;
+  }
+
+  const summaries = await getMonthlySummary(yearMonth);
+
+  if (summaries.length === 0) {
+    await say(`📊 ${displayMonth}の作業データがありません`);
+    return;
+  }
+
+  let message = `📊 【${displayMonth}の作業サマリー】\n\n`;
+
+  let totalMinutes = 0;
+  let totalAmount = 0;
+
+  for (const summary of summaries) {
+    const hours = formatDuration(summary.total_minutes);
+    message += `📁 ${summary.project_name}（${summary.client_name}）\n`;
+    message += `   ⏱️ 合計: ${hours}（${summary.session_count}回）\n`;
+    message += `   💰 請求額: ${formatCurrency(summary.total_amount)}\n\n`;
+
+    totalMinutes += summary.total_minutes;
+    totalAmount += summary.total_amount;
+  }
+
+  message += `━━━━━━━━━━━━━━━━━━\n`;
+  message += `⏱️ 総作業時間: ${formatDuration(totalMinutes)}\n`;
+  message += `💰 総合計: ${formatCurrency(totalAmount)}`;
+
+  await say(message);
+}
+
 // アプリを起動
 async function start() {
   try {
     await app.start();
     console.log('⚡ Time Tracker Bot が起動しました');
     console.log(`📢 チャンネルID: ${channelId || '未設定'}`);
+
+    // 月末チェック用のcronジョブを設定（毎日23:00に実行）
+    cron.schedule('0 23 * * *', async () => {
+      console.log('🕐 月末チェック実行中...');
+      const today = new Date();
+      if (isLastDayOfMonth(today)) {
+        console.log('📅 今日は月末です！サマリーを送信します');
+        await sendMonthlySummary();
+      } else {
+        console.log('📅 今日は月末ではありません');
+      }
+    }, {
+      timezone: 'Asia/Tokyo'
+    });
+
+    console.log('📆 月末通知スケジューラーを開始しました（毎日23:00にチェック）');
   } catch (error) {
     console.error('❌ 起動エラー:', error);
     process.exit(1);

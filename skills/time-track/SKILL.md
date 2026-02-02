@@ -25,10 +25,11 @@ tools:
 ## 使用方法
 
 ```
-@timebot /in [プロジェクト名]   # 作業開始
-@timebot /out                   # 作業終了
-@timebot /status                # 状態確認
-@timebot /invoice [YYYY-MM]     # 請求書生成（手動）
+@timebot /in [プロジェクト名]       # 作業開始
+@timebot /out                       # 作業終了
+@timebot /status                    # 状態確認
+@timebot /add [プロジェクト] [時間] # 作業時間追加
+@timebot /summary [YYYY-MM]         # 月間サマリー
 ```
 
 ## 概要
@@ -118,28 +119,50 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 ⏱️ 経過時間: 1時間45分
 ```
 
-### ステップ5: 月末請求書生成
+### ステップ5: 作業時間の追加（/add）
 
-毎月末日の23:00に自動実行されます。
-
-**自動通知**:
 ```
-📅 本日は締め日です
+@timebot /add saixaid 2時間
+@timebot /add saixaid 30分 MTG
+```
 
-【2026年1月の作業サマリー】
+**対応フォーマット**: `2時間`, `30分`, `2時間30分`, `1.5時間`, `2h`, `30m`, `2h30m`, `90`（分）
 
-📁 プロジェクトA（株式会社A）
-   ⏱️ 合計: 45時間30分
-   💰 請求額: ¥227,500
+**応答**:
+```
+✅ 作業時間を追加しました
+📁 プロジェクト: saixaid
+⏱️ 追加時間: 2時間0分
+📊 本日の合計: 4時間30分
+```
+
+### ステップ6: 月間サマリー（/summary）
+
+```
+@timebot /summary           # 今月
+@timebot /summary 2026-01   # 指定月
+```
+
+**応答**:
+```
+📊 【2026年1月の作業サマリー】
+
+📁 saixaid（クライアント名）
+   ⏱️ 合計: 45時間30分（15回）
+   💰 請求額: ¥86,450
 
 ━━━━━━━━━━━━━━━━━━
-💰 総合計: ¥227,500
-
-請求書を生成しています...
-
-✅ 請求書を生成しました
-📄 株式会社A_請求書_2026年01月.xlsx
+⏱️ 総作業時間: 45時間30分
+💰 総合計: ¥86,450
 ```
+
+### ステップ7: 月末自動通知
+
+毎月末日の23:00（JST）に自動で月間サマリーが `SLACK_CHANNEL_ID` に送信されます。
+
+### ステップ8: 月末請求書生成（未実装）
+
+> ⚠️ 請求書生成機能は将来の実装予定です（invoice-generatorサブエージェント）
 
 ## 使用例
 
@@ -160,14 +183,23 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
        → 📊 本日の合計: 8時間0分
 ```
 
-### 例2: 請求書の手動生成
+### 例2: 作業時間の後追い追加
 
 ```
-@timebot /invoice 2026-01
+@timebot /add saixaid 2時間 昨日のMTG忘れてた
+→ ✅ 作業時間を追加しました
+```
 
-→ 📄 2026年1月の請求書を生成しています...
-→ ✅ 請求書を生成しました
-→ 📄 株式会社A_請求書_2026年01月.xlsx
+### 例3: 月間サマリーの確認
+
+```
+@timebot /summary
+→ 📊 【2026年2月の作業サマリー】
+  ...
+
+@timebot /summary 2026-01
+→ 📊 【2026年1月の作業サマリー】
+  ...
 ```
 
 ## エラーハンドリング
@@ -216,10 +248,9 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 ### 使用ライブラリ
 - @slack/bolt: Slack Bot（Socket Mode）
 - @supabase/supabase-js: Supabase連携
-- @notionhq/client: Notion連携
-- exceljs: Excel生成
-- node-cron: スケジュール実行
-- date-fns: 日付操作
+- node-cron: 月末スケジュール実行
+- @notionhq/client: Notion連携（未使用）
+- exceljs: Excel生成（未使用・invoice-generator用）
 
 ### 環境変数
 ```
