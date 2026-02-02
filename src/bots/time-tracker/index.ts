@@ -7,6 +7,7 @@ import {
   startWork,
   endWork,
   getTodayTotalMinutes,
+  addWorkTime,
 } from './services/supabase.js';
 import { formatDuration, formatTime } from './utils/format.js';
 
@@ -61,8 +62,11 @@ app.event('app_mention', async ({ event, say }) => {
       case 'status':
         await handleStatusCommand(say);
         break;
+      case 'add':
+        await handleAddCommand(args, say);
+        break;
       default:
-        await say('❓ 使用可能なコマンド:\n• `/in [プロジェクト名]` - 作業開始\n• `/out` - 作業終了\n• `/status` - 状態確認');
+        await say('❓ 使用可能なコマンド:\n• `/in [プロジェクト名]` - 作業開始\n• `/out` - 作業終了\n• `/status` - 状態確認\n• `/add [プロジェクト名] [時間]` - 作業時間追加');
     }
   } catch (error) {
     console.error('エラー:', error);
@@ -155,6 +159,99 @@ async function handleStatusCommand(say: (message: string) => Promise<unknown>) {
     const todayTotalFormatted = formatDuration(todayTotal);
     await say(`⚪ 作業していません\n📊 本日の合計: ${todayTotalFormatted}`);
   }
+}
+
+// 時間文字列をパース（分に変換）
+// 対応フォーマット: "2時間", "30分", "2時間30分", "2h", "30m", "2h30m", "1.5時間", "90"（分として解釈）
+function parseTimeString(timeStr: string): number | null {
+  const str = timeStr.trim();
+
+  // 日本語フォーマット: "2時間30分", "2時間", "30分"
+  const jpMatch = str.match(/^(\d+(?:\.\d+)?)\s*時間?\s*(?:(\d+)\s*分)?$/);
+  if (jpMatch) {
+    const hours = parseFloat(jpMatch[1]);
+    const minutes = jpMatch[2] ? parseInt(jpMatch[2], 10) : 0;
+    return Math.round(hours * 60 + minutes);
+  }
+
+  // 日本語フォーマット（分のみ）: "30分"
+  const jpMinMatch = str.match(/^(\d+)\s*分$/);
+  if (jpMinMatch) {
+    return parseInt(jpMinMatch[1], 10);
+  }
+
+  // 英語フォーマット: "2h30m", "2h", "30m"
+  const enMatch = str.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+)\s*m)?$/i);
+  if (enMatch && (enMatch[1] || enMatch[2])) {
+    const hours = enMatch[1] ? parseFloat(enMatch[1]) : 0;
+    const minutes = enMatch[2] ? parseInt(enMatch[2], 10) : 0;
+    return Math.round(hours * 60 + minutes);
+  }
+
+  // 数字のみ: 分として解釈
+  const numMatch = str.match(/^(\d+(?:\.\d+)?)$/);
+  if (numMatch) {
+    return Math.round(parseFloat(numMatch[1]));
+  }
+
+  return null;
+}
+
+// /add コマンド - 作業時間追加
+async function handleAddCommand(args: string, say: (message: string) => Promise<unknown>) {
+  // 引数をパース: "プロジェクト名 時間" または "プロジェクト名 時間 メモ"
+  const parts = args.split(/\s+/);
+
+  if (parts.length < 2) {
+    await say(
+      '⚠️ 使用方法: `/add [プロジェクト名] [時間]`\n' +
+      '例: `/add saixaid 2時間`\n' +
+      '時間の形式: `2時間`, `30分`, `2時間30分`, `2h`, `30m`, `2h30m`, `90`(分)'
+    );
+    return;
+  }
+
+  const projectName = parts[0];
+  const timeStr = parts[1];
+  const note = parts.slice(2).join(' ') || undefined;
+
+  // 時間をパース
+  const durationMinutes = parseTimeString(timeStr);
+  if (durationMinutes === null || durationMinutes <= 0) {
+    await say(
+      `❌ 時間の形式が正しくありません: 「${timeStr}」\n` +
+      '使用可能な形式: `2時間`, `30分`, `2時間30分`, `2h`, `30m`, `2h30m`, `90`(分)'
+    );
+    return;
+  }
+
+  // プロジェクトを検索
+  const project = await getProjectByName(projectName);
+  if (!project) {
+    const projects = await getActiveProjects();
+    const projectList = projects.map((p) => p.name).join(', ');
+    await say(`❌ プロジェクト「${projectName}」が見つかりません\n登録済みプロジェクト: ${projectList || 'なし'}`);
+    return;
+  }
+
+  // 作業時間を追加
+  const timeLog = await addWorkTime(project.id, durationMinutes, note);
+  if (!timeLog) {
+    await say('❌ 作業時間の追加に失敗しました');
+    return;
+  }
+
+  // 今日の合計を取得
+  const todayTotal = await getTodayTotalMinutes();
+  const duration = formatDuration(durationMinutes);
+  const todayTotalFormatted = formatDuration(todayTotal);
+
+  let message = `✅ 作業時間を追加しました\n📁 プロジェクト: ${project.name}\n⏱️ 追加時間: ${duration}\n📊 本日の合計: ${todayTotalFormatted}`;
+  if (note) {
+    message += `\n📝 メモ: ${note}`;
+  }
+
+  await say(message);
 }
 
 // アプリを起動

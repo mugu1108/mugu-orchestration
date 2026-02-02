@@ -144,3 +144,33 @@ export async function getTodaySummary(): Promise<{ project_name: string; total_m
   if (error || !data) return [];
   return data;
 }
+
+// 作業時間を直接追加（/addコマンド用）
+export async function addWorkTime(
+  projectId: string,
+  durationMinutes: number,
+  note?: string
+): Promise<TimeLog | null> {
+  const now = new Date();
+  // 終了時刻を現在時刻、開始時刻を終了時刻からdurationMinutes分前に設定
+  const endedAt = now.toISOString();
+  const startedAt = new Date(now.getTime() - durationMinutes * 60000).toISOString();
+
+  const { data, error } = await supabase
+    .from('time_logs')
+    .insert({
+      project_id: projectId,
+      started_at: startedAt,
+      ended_at: endedAt,
+      duration_minutes: durationMinutes,
+      note: note || null,
+    })
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error('作業時間追加エラー:', error);
+    return null;
+  }
+  return data as TimeLog;
+}
