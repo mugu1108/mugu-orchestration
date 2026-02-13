@@ -136,13 +136,12 @@ async function handleOutCommand(say: (message: string) => Promise<unknown>) {
     return;
   }
 
-  // 今日の合計を取得
+  // 今日の合計を取得（endWork後なので今回の作業時間は既に含まれている）
   const todayTotal = await getTodayTotalMinutes();
-  const totalWithCurrent = todayTotal + timeLog.duration_minutes;
 
   const endTime = formatTime(timeLog.ended_at!);
   const duration = formatDuration(timeLog.duration_minutes);
-  const todayTotalFormatted = formatDuration(totalWithCurrent);
+  const todayTotalFormatted = formatDuration(todayTotal);
 
   await say(
     `✅ 作業を終了しました\n📁 プロジェクト: ${activeSession.project_name}\n🕐 終了時刻: ${endTime}\n⏱️ 今回の作業時間: ${duration}\n📊 本日の合計: ${todayTotalFormatted}`
