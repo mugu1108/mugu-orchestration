@@ -8,8 +8,12 @@ import {
   startWork,
   endWork,
   getTodayTotalMinutes,
+  getTodaySummary,
   addWorkTime,
   getMonthlySummary,
+  getWeeklySummary,
+  deleteLastTimeLog,
+  addProject,
 } from './services/supabase.js';
 import { formatDuration, formatTime } from './utils/format.js';
 
@@ -70,8 +74,20 @@ app.event('app_mention', async ({ event, say }) => {
       case 'summary':
         await handleSummaryCommand(args, say);
         break;
+      case 'today':
+        await handleTodayCommand(say);
+        break;
+      case 'week':
+        await handleWeekCommand(say);
+        break;
+      case 'undo':
+        await handleUndoCommand(say);
+        break;
+      case 'project':
+        await handleProjectCommand(args, say);
+        break;
       default:
-        await say('❓ 使用可能なコマンド:\n• `/in [プロジェクト名]` - 作業開始\n• `/out` - 作業終了\n• `/status` - 状態確認\n• `/add [プロジェクト名] [時間]` - 作業時間追加\n• `/summary [YYYY-MM]` - 月間サマリー');
+        await say('❓ 使用可能なコマンド:\n• `in [プロジェクト名]` - 作業開始\n• `out` - 作業終了\n• `status` - 状態確認\n• `today` - 今日の内訳\n• `week` - 週間サマリー\n• `add [プロジェクト名] [時間]` - 作業時間追加\n• `undo` - 直近の記録を削除\n• `summary [YYYY-MM]` - 月間サマリー\n• `project add [名前] [時給]` - プロジェクト追加');
     }
   } catch (error) {
     console.error('エラー:', error);
@@ -93,7 +109,7 @@ async function handleInCommand(projectName: string, say: (message: string) => Pr
   const activeSession = await getActiveSession();
   if (activeSession) {
     await say(
-      `⚠️ 現在「${activeSession.project_name}」で作業中です\n先に \`/out\` で終了してください`
+      `⚠️ 現在「${activeSession.project_name}」で作業中です\n先に \`out\` で終了してください`
     );
     return;
   }
@@ -125,7 +141,7 @@ async function handleOutCommand(say: (message: string) => Promise<unknown>) {
   // 作業中のセッションを取得
   const activeSession = await getActiveSession();
   if (!activeSession) {
-    await say('⚠️ 現在作業中ではありません\n`/in [プロジェクト名]` で開始してください');
+    await say('⚠️ 現在作業中ではありません\n`in [プロジェクト名]` で開始してください');
     return;
   }
 
@@ -208,8 +224,8 @@ async function handleAddCommand(args: string, say: (message: string) => Promise<
 
   if (parts.length < 2) {
     await say(
-      '⚠️ 使用方法: `/add [プロジェクト名] [時間]`\n' +
-      '例: `/add saixaid 2時間`\n' +
+      '⚠️ 使用方法: `add [プロジェクト名] [時間]`\n' +
+      '例: `add saixaid 2時間`\n' +
       '時間の形式: `2時間`, `30分`, `2時間30分`, `2h`, `30m`, `2h30m`, `90`(分)'
     );
     return;
@@ -331,7 +347,7 @@ async function handleSummaryCommand(args: string, say: (message: string) => Prom
     // YYYY-MM 形式をチェック
     const match = args.match(/^(\d{4})-(\d{2})$/);
     if (!match) {
-      await say('⚠️ 月の形式が正しくありません\n使用方法: `/summary` または `/summary 2026-01`');
+      await say('⚠️ 月の形式が正しくありません\n使用方法: `summary` または `summary 2026-01`');
       return;
     }
     yearMonth = args;
@@ -369,6 +385,128 @@ async function handleSummaryCommand(args: string, say: (message: string) => Prom
   message += `💰 総合計: ${formatCurrency(totalAmount)}`;
 
   await say(message);
+}
+
+// /today コマンド - 今日のプロジェクト別内訳
+async function handleTodayCommand(say: (message: string) => Promise<unknown>) {
+  const summaries = await getTodaySummary();
+
+  if (summaries.length === 0) {
+    await say('📊 今日の作業データがありません');
+    return;
+  }
+
+  let message = '📊 【今日の作業内訳】\n\n';
+  let totalMinutes = 0;
+
+  for (const summary of summaries) {
+    const duration = formatDuration(summary.total_minutes);
+    message += `📁 ${summary.project_name}: ${duration}\n`;
+    totalMinutes += summary.total_minutes;
+  }
+
+  message += `\n━━━━━━━━━━━━━━━━━━\n`;
+  message += `⏱️ 合計: ${formatDuration(totalMinutes)}`;
+
+  await say(message);
+}
+
+// /week コマンド - 週間サマリー
+async function handleWeekCommand(say: (message: string) => Promise<unknown>) {
+  const summaries = await getWeeklySummary();
+
+  if (summaries.length === 0) {
+    await say('📊 今週の作業データがありません');
+    return;
+  }
+
+  let message = '📊 【今週の作業サマリー】\n\n';
+  let totalMinutes = 0;
+
+  for (const summary of summaries) {
+    const duration = formatDuration(summary.total_minutes);
+    message += `📁 ${summary.project_name}: ${duration}（${summary.session_count}回）\n`;
+    totalMinutes += summary.total_minutes;
+  }
+
+  message += `\n━━━━━━━━━━━━━━━━━━\n`;
+  message += `⏱️ 合計: ${formatDuration(totalMinutes)}`;
+
+  await say(message);
+}
+
+// /undo コマンド - 直近の記録を削除
+async function handleUndoCommand(say: (message: string) => Promise<unknown>) {
+  const deletedLog = await deleteLastTimeLog();
+
+  if (!deletedLog) {
+    await say('⚠️ 削除できる記録がありません');
+    return;
+  }
+
+  const project = (deletedLog as unknown as { projects: { name: string } }).projects;
+  const duration = formatDuration(deletedLog.duration_minutes || 0);
+
+  await say(
+    `🗑️ 直近の記録を削除しました\n📁 プロジェクト: ${project.name}\n⏱️ 削除した時間: ${duration}`
+  );
+}
+
+// /project コマンド - プロジェクト管理
+async function handleProjectCommand(args: string, say: (message: string) => Promise<unknown>) {
+  const parts = args.split(/\s+/);
+  const subCommand = parts[0]?.toLowerCase();
+
+  if (subCommand === 'add') {
+    // /project add [名前] [時給] [クライアント名(任意)]
+    if (parts.length < 3) {
+      await say('⚠️ 使用方法: `project add [名前] [時給]`\n例: `project add newproject 3000`');
+      return;
+    }
+
+    const name = parts[1];
+    const hourlyRate = parseInt(parts[2], 10);
+    const clientName = parts[3] || undefined;
+
+    if (isNaN(hourlyRate) || hourlyRate <= 0) {
+      await say('❌ 時給は正の数値で指定してください');
+      return;
+    }
+
+    // 既存プロジェクトチェック
+    const existing = await getProjectByName(name);
+    if (existing) {
+      await say(`❌ プロジェクト「${name}」は既に存在します`);
+      return;
+    }
+
+    const project = await addProject(name, hourlyRate, clientName);
+    if (!project) {
+      await say('❌ プロジェクトの追加に失敗しました');
+      return;
+    }
+
+    await say(
+      `✅ プロジェクトを追加しました\n📁 名前: ${project.name}\n💰 時給: ${formatCurrency(project.hourly_rate)}\n🏢 クライアント: ${project.client_name}`
+    );
+  } else if (subCommand === 'list' || !subCommand) {
+    // /project list または /project - プロジェクト一覧
+    const projects = await getActiveProjects();
+
+    if (projects.length === 0) {
+      await say('📁 登録されているプロジェクトがありません');
+      return;
+    }
+
+    let message = '📁 【プロジェクト一覧】\n\n';
+    for (const p of projects) {
+      message += `• ${p.name}（${p.client_name}）- ${formatCurrency(p.hourly_rate)}/h\n`;
+    }
+
+    await say(message);
+  } else {
+    await say('⚠️ 使用方法:\n• `project` - 一覧表示\n• `project add [名前] [時給]` - 追加');
+  }
 }
 
 // アプリを起動
