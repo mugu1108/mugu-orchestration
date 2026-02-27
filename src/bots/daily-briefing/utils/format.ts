@@ -1,5 +1,4 @@
 import { CalendarEvent } from '../services/calendar.js';
-import { NotionTask } from '../services/notion.js';
 import { WorkSummary } from '../services/timetracker.js';
 
 // 曜日の日本語表記
@@ -129,65 +128,6 @@ export function formatDuration(minutes: number): string {
   return `${hours}時間${mins}分`;
 }
 
-// タスクをフォーマット
-export function formatTaskLine(task: NotionTask): string {
-  const statusEmoji = task.status === '進行中' ? '🔵' : '⚪';
-  const dueDateStr = task.dueDate ? `(${task.dueDate.getMonth() + 1}/${task.dueDate.getDate()})` : '';
-  return `${statusEmoji} ${task.title} ${dueDateStr}`;
-}
-
-// 今日のタスクメッセージを生成
-export function generateTodayTasksMessage(tasks: NotionTask[]): string {
-  const today = new Date();
-  const dateStr = formatDate(today);
-
-  let message = `📋 【今日のタスク】${dateStr}\n\n`;
-
-  if (tasks.length === 0) {
-    message += `今日期限のタスクはありません\n`;
-  } else {
-    for (const task of tasks) {
-      message += `${formatTaskLine(task)}\n`;
-    }
-  }
-
-  return message;
-}
-
-// 週間タスクメッセージを生成
-export function generateWeekTasksMessage(tasks: NotionTask[]): string {
-  let message = `📋 【今週のタスク】\n\n`;
-
-  if (tasks.length === 0) {
-    message += `今週期限のタスクはありません\n`;
-  } else {
-    // 日付ごとにグループ化
-    const grouped = new Map<string, NotionTask[]>();
-
-    for (const task of tasks) {
-      const key = task.dueDate
-        ? `${task.dueDate.getMonth() + 1}/${task.dueDate.getDate()}(${WEEKDAYS[task.dueDate.getDay()]})`
-        : '期限なし';
-
-      if (!grouped.has(key)) {
-        grouped.set(key, []);
-      }
-      grouped.get(key)!.push(task);
-    }
-
-    for (const [date, dateTasks] of grouped) {
-      message += `📅 ${date}\n`;
-      for (const task of dateTasks) {
-        const statusEmoji = task.status === '進行中' ? '🔵' : '⚪';
-        message += `  ${statusEmoji} ${task.title}\n`;
-      }
-      message += `\n`;
-    }
-  }
-
-  return message;
-}
-
 // 作業サマリーメッセージを生成
 export function generateWorkSummaryMessage(summaries: WorkSummary[], label: string): string {
   let message = `⏱️ 【${label}の作業】\n\n`;
@@ -234,110 +174,112 @@ export function generateTomorrowMessage(events: CalendarEvent[]): string {
   return message;
 }
 
-// 拡張ブリーフィングメッセージを生成（カレンダー + タスク + 前日サマリー）
-export function generateFullBriefingMessage(
-  events: CalendarEvent[],
-  todayTasks: NotionTask[],
-  weekTasks: NotionTask[],
-  yesterdaySummary: WorkSummary[]
-): string {
+// 朝のブリーフィングメッセージを生成（Google Calendarのみ）
+export function generateMorningBriefingMessage(events: CalendarEvent[]): string {
   const today = new Date();
   const dateStr = formatDate(today);
 
   let message = `☀️ おはようございます！${dateStr}\n\n`;
   message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-  // 今日の予定
   if (events.length === 0) {
     message += `📅 今日の予定\n`;
     message += `予定はありません\n\n`;
   } else {
-    message += `📅 今日の予定（${events.length}件）\n\n`;
+    message += `📅 今日の予定\n\n`;
 
     const allDayEvents = events.filter(e => e.isAllDay);
     const timedEvents = events.filter(e => !e.isAllDay);
 
     for (const event of allDayEvents) {
-      message += `${formatEventLine(event)}\n`;
+      message += `• 終日 | ${event.title}\n`;
     }
 
     for (const event of timedEvents) {
-      message += `${formatEventLine(event)}\n`;
+      const start = formatTime(event.startTime);
+      const end = formatTime(event.endTime);
+      message += `• ${start}-${end} | ${event.title}\n`;
     }
 
     message += `\n`;
-  }
-
-  // 今日のタスク
-  message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-  if (todayTasks.length === 0) {
-    message += `📋 今日のタスク\n`;
-    message += `今日期限のタスクはありません\n\n`;
-  } else {
-    message += `📋 今日のタスク（${todayTasks.length}件）\n\n`;
-
-    for (const task of todayTasks) {
-      const statusEmoji = task.status === '進行中' ? '🔵' : '⚪';
-      message += `${statusEmoji} ${task.title}\n`;
-    }
-
-    message += `\n`;
-  }
-
-  // 今週のタスク（今日以外）
-  const todayStr = today.toISOString().split('T')[0];
-  const otherWeekTasks = weekTasks.filter(task => {
-    if (!task.dueDate) return false;
-    const taskDateStr = task.dueDate.toISOString().split('T')[0];
-    return taskDateStr !== todayStr;
-  });
-
-  if (otherWeekTasks.length > 0) {
-    message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `📋 今週のタスク（${otherWeekTasks.length}件）\n\n`;
-
-    // 日付ごとにグループ化
-    const grouped = new Map<string, NotionTask[]>();
-
-    for (const task of otherWeekTasks) {
-      const key = task.dueDate
-        ? `${task.dueDate.getMonth() + 1}/${task.dueDate.getDate()}(${WEEKDAYS[task.dueDate.getDay()]})`
-        : '期限なし';
-
-      if (!grouped.has(key)) {
-        grouped.set(key, []);
-      }
-      grouped.get(key)!.push(task);
-    }
-
-    for (const [date, dateTasks] of grouped) {
-      message += `📅 ${date}\n`;
-      for (const task of dateTasks) {
-        const statusEmoji = task.status === '進行中' ? '🔵' : '⚪';
-        message += `  ${statusEmoji} ${task.title}\n`;
-      }
-    }
-
-    message += `\n`;
-  }
-
-  // 前日の作業サマリー
-  if (yesterdaySummary.length > 0) {
-    message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `⏱️ 昨日の作業\n\n`;
-
-    let totalMinutes = 0;
-    for (const summary of yesterdaySummary) {
-      message += `📁 ${summary.project_name}: ${formatDuration(summary.total_minutes)}\n`;
-      totalMinutes += summary.total_minutes;
-    }
-
-    message += `\n合計: ${formatDuration(totalMinutes)}\n\n`;
   }
 
   message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
   message += `💡 今日も良い1日を！`;
+
+  return message;
+}
+
+// 夕方チェック用イベントをフォーマット（チェックボックス形式）
+function formatEventCheckLine(event: CalendarEvent): string {
+  if (event.isAllDay) {
+    return `☐ 終日 | ${event.title}`;
+  }
+  const start = formatTime(event.startTime);
+  return `☐ ${start} | ${event.title}`;
+}
+
+// 夕方チェックメッセージを生成
+export function generateEveningCheckMessage(
+  todayEvents: CalendarEvent[],
+  tomorrowEvents: CalendarEvent[]
+): string {
+  const today = new Date();
+  const dateStr = formatDate(today);
+  const timeStr = formatTime(today);
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDateStr = formatDate(tomorrow);
+
+  let message = `🌆 お疲れ様です！${dateStr} ${timeStr}\n\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  // 今日の予定 - 完了チェック
+  message += `📋 今日の予定 - 完了チェック\n`;
+
+  if (todayEvents.length === 0) {
+    message += `予定はありませんでした\n\n`;
+  } else {
+    const allDayEvents = todayEvents.filter(e => e.isAllDay);
+    const timedEvents = todayEvents.filter(e => !e.isAllDay);
+
+    for (const event of allDayEvents) {
+      message += `${formatEventCheckLine(event)}\n`;
+    }
+
+    for (const event of timedEvents) {
+      message += `${formatEventCheckLine(event)}\n`;
+    }
+
+    message += `\n`;
+  }
+
+  message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  // 明日の予定
+  message += `📅 明日の予定（${tomorrowDateStr}）\n`;
+
+  if (tomorrowEvents.length === 0) {
+    message += `予定はありません\n\n`;
+  } else {
+    const allDayEvents = tomorrowEvents.filter(e => e.isAllDay);
+    const timedEvents = tomorrowEvents.filter(e => !e.isAllDay);
+
+    for (const event of allDayEvents) {
+      message += `• 終日 | ${event.title}\n`;
+    }
+
+    for (const event of timedEvents) {
+      const start = formatTime(event.startTime);
+      message += `• ${start} | ${event.title}\n`;
+    }
+
+    message += `\n`;
+  }
+
+  message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  message += `💡 今日も1日お疲れ様でした！`;
 
   return message;
 }

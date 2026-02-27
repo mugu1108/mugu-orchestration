@@ -2,15 +2,13 @@ import { App, LogLevel } from '@slack/bolt';
 import { config } from 'dotenv';
 import cron from 'node-cron';
 import { getTodayEvents, getEventsForDate } from './services/calendar.js';
-import { getTodayTasks, getWeekTasks } from './services/notion.js';
 import { getYesterdaySummary } from './services/timetracker.js';
 import {
   generateManualBriefingMessage,
   generateTomorrowMessage,
-  generateTodayTasksMessage,
-  generateWeekTasksMessage,
   generateWorkSummaryMessage,
-  generateFullBriefingMessage,
+  generateMorningBriefingMessage,
+  generateEveningCheckMessage,
 } from './utils/format.js';
 
 // 環境変数を読み込む
@@ -21,6 +19,7 @@ const botToken = process.env.SLACK_BOT_TOKEN;
 const appToken = process.env.SLACK_APP_TOKEN;
 const channelId = process.env.BRIEFING_CHANNEL_ID || process.env.SLACK_CHANNEL_ID;
 const briefingTime = process.env.BRIEFING_TIME || '08:00';
+const eveningTime = process.env.BRIEFING_EVENING_TIME || '18:00';
 const weekdaysOnly = process.env.BRIEFING_WEEKDAYS_ONLY !== 'false';
 
 if (!botToken || !appToken) {
@@ -50,8 +49,8 @@ function isWeekday(): boolean {
   return day !== 0 && day !== 6;
 }
 
-// ブリーフィングを送信（拡張版：カレンダー + タスク + 前日サマリー）
-async function sendBriefing() {
+// 朝のブリーフィングを送信（Google Calendarのみ）
+async function sendMorningBriefing() {
   if (!channelId) {
     console.error('❌ BRIEFING_CHANNEL_ID または SLACK_CHANNEL_ID が設定されていません');
     return;
@@ -59,36 +58,71 @@ async function sendBriefing() {
 
   // 平日のみの設定で、今日が休日の場合はスキップ
   if (weekdaysOnly && !isWeekday()) {
-    console.log('📅 今日は休日のためブリーフィングをスキップします');
+    console.log('📅 今日は休日のため朝のブリーフィングをスキップします');
     return;
   }
 
-  console.log('📊 ブリーフィングを生成中...');
+  console.log('☀️ 朝のブリーフィングを生成中...');
 
   try {
-    // 並列でデータを取得
-    const [events, todayTasks, weekTasks, yesterdaySummary] = await Promise.all([
-      getTodayEvents().catch(() => []),
-      getTodayTasks().catch(() => []),
-      getWeekTasks().catch(() => []),
-      getYesterdaySummary().catch(() => []),
-    ]);
-
-    const message = generateFullBriefingMessage(events, todayTasks, weekTasks, yesterdaySummary);
+    const events = await getTodayEvents().catch(() => []);
+    const message = generateMorningBriefingMessage(events);
 
     await app.client.chat.postMessage({
       channel: channelId,
       text: message,
     });
 
-    console.log('✅ ブリーフィングを送信しました');
+    console.log('✅ 朝のブリーフィングを送信しました');
   } catch (error) {
-    console.error('❌ ブリーフィング送信エラー:', error);
+    console.error('❌ 朝のブリーフィング送信エラー:', error);
 
-    // エラー通知を送信
     await app.client.chat.postMessage({
       channel: channelId,
-      text: '⚠️ ブリーフィングの生成に失敗しました\n\n設定を確認してください。',
+      text: '⚠️ 朝のブリーフィングの生成に失敗しました\n\n設定を確認してください。',
+    });
+  }
+}
+
+// 夕方チェックを送信
+async function sendEveningCheck() {
+  if (!channelId) {
+    console.error('❌ BRIEFING_CHANNEL_ID または SLACK_CHANNEL_ID が設定されていません');
+    return;
+  }
+
+  // 平日のみの設定で、今日が休日の場合はスキップ
+  if (weekdaysOnly && !isWeekday()) {
+    console.log('📅 今日は休日のため夕方チェックをスキップします');
+    return;
+  }
+
+  console.log('🌆 夕方チェックを生成中...');
+
+  try {
+    // 今日の予定と明日の予定を取得
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [todayEvents, tomorrowEvents] = await Promise.all([
+      getTodayEvents().catch(() => []),
+      getEventsForDate(tomorrow).catch(() => []),
+    ]);
+
+    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents);
+
+    await app.client.chat.postMessage({
+      channel: channelId,
+      text: message,
+    });
+
+    console.log('✅ 夕方チェックを送信しました');
+  } catch (error) {
+    console.error('❌ 夕方チェック送信エラー:', error);
+
+    await app.client.chat.postMessage({
+      channel: channelId,
+      text: '⚠️ 夕方チェックの生成に失敗しました\n\n設定を確認してください。',
     });
   }
 }
@@ -106,28 +140,23 @@ app.event('app_mention', async ({ event, say }) => {
   try {
     switch (command) {
       case 'briefing':
-        await handleFullBriefingCommand(say);
-        break;
       case 'today':
         await handleBriefingCommand(say);
         break;
       case 'tomorrow':
         await handleTomorrowCommand(say);
         break;
-      case 'tasks':
-        await handleTasksCommand(say);
-        break;
-      case 'weektasks':
-        await handleWeekTasksCommand(say);
+      case 'evening':
+        await handleEveningCheckCommand(say);
         break;
       case 'yesterday':
         await handleYesterdayCommand(say);
         break;
       case 'help':
-        await say('❓ 使用可能なコマンド:\n• `briefing` - フルブリーフィング\n• `today` - 今日の予定\n• `tomorrow` - 明日の予定\n• `tasks` - 今日のタスク\n• `weektasks` - 今週のタスク\n• `yesterday` - 昨日の作業');
+        await say('❓ 使用可能なコマンド:\n• `briefing` / `today` - 今日の予定\n• `tomorrow` - 明日の予定\n• `evening` - 夕方チェック\n• `yesterday` - 昨日の作業');
         break;
       default:
-        await say('❓ 使用可能なコマンド:\n• `briefing` - フルブリーフィング\n• `today` - 今日の予定\n• `tomorrow` - 明日の予定\n• `tasks` - 今日のタスク\n• `weektasks` - 今週のタスク\n• `yesterday` - 昨日の作業');
+        await say('❓ 使用可能なコマンド:\n• `briefing` / `today` - 今日の予定\n• `tomorrow` - 明日の予定\n• `evening` - 夕方チェック\n• `yesterday` - 昨日の作業');
     }
   } catch (error) {
     console.error('エラー:', error);
@@ -147,24 +176,6 @@ async function handleBriefingCommand(say: (message: string) => Promise<unknown>)
   }
 }
 
-// フルブリーフィングコマンド（カレンダー + タスク + 前日サマリー）
-async function handleFullBriefingCommand(say: (message: string) => Promise<unknown>) {
-  try {
-    const [events, todayTasks, weekTasks, yesterdaySummary] = await Promise.all([
-      getTodayEvents().catch(() => []),
-      getTodayTasks().catch(() => []),
-      getWeekTasks().catch(() => []),
-      getYesterdaySummary().catch(() => []),
-    ]);
-
-    const message = generateFullBriefingMessage(events, todayTasks, weekTasks, yesterdaySummary);
-    await say(message);
-  } catch (error) {
-    console.error('フルブリーフィングエラー:', error);
-    await say('❌ ブリーフィングの取得に失敗しました\n\n設定を確認してください。');
-  }
-}
-
 // /tomorrow コマンド - 明日の予定を表示
 async function handleTomorrowCommand(say: (message: string) => Promise<unknown>) {
   try {
@@ -179,27 +190,22 @@ async function handleTomorrowCommand(say: (message: string) => Promise<unknown>)
   }
 }
 
-// /tasks コマンド - 今日のタスクを表示
-async function handleTasksCommand(say: (message: string) => Promise<unknown>) {
+// /evening コマンド - 夕方チェックを表示
+async function handleEveningCheckCommand(say: (message: string) => Promise<unknown>) {
   try {
-    const tasks = await getTodayTasks();
-    const message = generateTodayTasksMessage(tasks);
-    await say(message);
-  } catch (error) {
-    console.error('タスク取得エラー:', error);
-    await say('❌ タスクの取得に失敗しました\n\nNotion設定を確認してください。');
-  }
-}
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-// /weektasks コマンド - 今週のタスクを表示
-async function handleWeekTasksCommand(say: (message: string) => Promise<unknown>) {
-  try {
-    const tasks = await getWeekTasks();
-    const message = generateWeekTasksMessage(tasks);
+    const [todayEvents, tomorrowEvents] = await Promise.all([
+      getTodayEvents(),
+      getEventsForDate(tomorrow),
+    ]);
+
+    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents);
     await say(message);
   } catch (error) {
-    console.error('週間タスク取得エラー:', error);
-    await say('❌ 週間タスクの取得に失敗しました\n\nNotion設定を確認してください。');
+    console.error('夕方チェックエラー:', error);
+    await say('❌ 夕方チェックの取得に失敗しました\n\n設定を確認してください。');
   }
 }
 
@@ -227,21 +233,33 @@ async function start() {
     await app.start();
     console.log('⚡ Daily Briefing Bot が起動しました');
     console.log(`📢 チャンネルID: ${channelId || '未設定'}`);
-    console.log(`⏰ ブリーフィング時刻: ${briefingTime}`);
-    console.log(`📅 平日のみ: ${weekdaysOnly}`);
+    console.log(`⏰ 朝ブリーフィング: ${briefingTime}`);
+    console.log(`⏰ 夕方チェック: ${eveningTime}`);
+    console.log(`📅 投稿: ${weekdaysOnly ? '平日のみ' : '毎日'}`);
 
-    // 毎朝のブリーフィング用cronジョブを設定
-    const { hour, minute } = parseCronTime(briefingTime);
-    const cronExpression = `${minute} ${hour} * * *`;
+    // 朝のブリーフィング用cronジョブ
+    const morning = parseCronTime(briefingTime);
+    const morningCron = `${morning.minute} ${morning.hour} * * *`;
 
-    cron.schedule(cronExpression, async () => {
-      console.log(`🕐 ブリーフィング時刻です (${briefingTime})`);
-      await sendBriefing();
+    cron.schedule(morningCron, async () => {
+      console.log(`🕐 朝のブリーフィング時刻です (${briefingTime})`);
+      await sendMorningBriefing();
     }, {
       timezone: 'Asia/Tokyo'
     });
 
-    console.log(`📆 ブリーフィングスケジューラーを開始しました（毎日 ${briefingTime}）`);
+    // 夕方チェック用cronジョブ
+    const evening = parseCronTime(eveningTime);
+    const eveningCron = `${evening.minute} ${evening.hour} * * *`;
+
+    cron.schedule(eveningCron, async () => {
+      console.log(`🕐 夕方チェック時刻です (${eveningTime})`);
+      await sendEveningCheck();
+    }, {
+      timezone: 'Asia/Tokyo'
+    });
+
+    console.log(`📆 スケジューラーを開始しました`);
   } catch (error) {
     console.error('❌ 起動エラー:', error);
     process.exit(1);
