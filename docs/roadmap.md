@@ -76,12 +76,15 @@
 - ✅ Supabase連携（projects, time_logs テーブル）
 - ⬜ Notion同期（未実装）
 
-### slide-creator / slide-reviewer エージェント ✅ 追加
+### daily-briefing Slack Bot ✅ 実装完了
+- ✅ 朝のブリーフィング（カレンダー・タスク統合）
+
+### slide-creator エージェント ✅ 追加
 - ✅ slide-creator エージェント（slideスキルのエージェント化）
-- ✅ slide-reviewer サブエージェント（フォーマット・内容レビュー）
+- slide-reviewer は定義削除済み（レビュー基準は slide スキルに組み込み済み）
 
 ### 請求書生成 ⬜ 未実装
-- ⬜ invoice-generator サブエージェント
+- ⬜ invoice-generator（エージェント定義削除済み、必要時に再作成）
   - 月末検知ロジック
   - 締め日通知
   - Excel請求書生成
@@ -99,7 +102,7 @@
   - エージェント間の連携ルール
 
 ### 除外するコンポーネント（不要）
-- ❌ architect エージェント - plannerで対応可能
+- ✅ architect エージェント - 内部エージェントとして実装済み
 - ❌ e2e-runner エージェント - 直接不要
 - ❌ tdd-guide エージェント - testing.mdで対応済み
 - ❌ refactor-cleaner エージェント - 現時点では不要
@@ -183,6 +186,6 @@
 8. ✅ time-tracker Slack Bot実装（/in, /out, /statusコマンド）
 9. ✅ slide-creator / slide-reviewer エージェント追加
 10. 🔄 フェーズ4進行中
-11. ⬜ invoice-generator サブエージェント実装
+11. ⬜ invoice-generator 実装（定義削除済み、必要時に再作成）
 12. ⬜ Notion同期実装
 13. GitHubにプッシュ

@@ -9,7 +9,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash, Task
 
 ## 概要
 
-Implementerは、Architect/Plannerの設計・計画に基づいて実際のコードを実装するエージェントです。新機能開発、バグ修正、リファクタリングなど、あらゆる実装タスクに対応します。
+Implementerは、Architect/Plannerの設計・計画に基づいて実際のコードを実装する**内部エージェント**です（直接コマンド呼び出しではなく、Orchestrator/Plannerからの委譲で動作）。新機能開発、バグ修正、リファクタリングなど、あらゆる実装タスクに対応します。
 
 ## 対応範囲
 

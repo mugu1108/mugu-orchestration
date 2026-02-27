@@ -17,22 +17,20 @@ Orchestratorは、ユーザーからのタスクを分析し、適切なチー�
 Orchestrator（統括）
     │
     ├── Development Team（開発チーム）7体
-    │   ├── Architect        - 設計・技術選定
+    │   ├── Architect        - 設計・技術選定（内部）
     │   ├── Planner          - 実装計画・タスク分解
-    │   ├── Implementer      - コード実装
-    │   ├── Test Generator   - テスト生成
+    │   ├── Implementer      - コード実装（内部）
+    │   ├── Test Generator   - テスト生成（内部）
     │   ├── Code Reviewer    - コード品質
     │   ├── Security Reviewer - セキュリティ
     │   └── Doc Updater      - ドキュメント
     │
-    ├── Business Team（ビジネスチーム）3体
+    ├── Business Team（ビジネスチーム）2体
     │   ├── Time Tracker     - 時間追跡
-    │   ├── Invoice Generator - 請求書生成
     │   └── Daily Briefing   - 朝のブリーフィング
     │
-    └── Content Team（コンテンツチーム）2体
-        ├── Slide Creator    - スライド生成
-        └── Slide Reviewer   - スライドレビュー
+    └── Content Team（コンテンツチーム）1体
+        └── Slide Creator    - スライド生成
 ```
 
 ## タスク振り分けルール
@@ -70,7 +68,6 @@ Doc Updater（ドキュメント）
 | キーワード | 担当エージェント |
 |-----------|----------------|
 | 時間記録、作業開始/終了 | Time Tracker |
-| 請求書、月末処理 | Invoice Generator |
 | 朝の予定、今日のタスク | Daily Briefing |
 
 ### Content Team に振り分け
@@ -78,7 +75,6 @@ Doc Updater（ドキュメント）
 | キーワード | 担当エージェント |
 |-----------|----------------|
 | スライド、プレゼン、Marp | Slide Creator |
-| スライドレビュー、改善 | Slide Reviewer |
 
 ## ワークフロー
 
@@ -155,6 +151,14 @@ Orchestrator:
   2. Content Team / Slide Creator でスライド生成
   → 結果を返却
 ```
+
+## 内部エージェントについて
+
+以下のエージェントは直接コマンド呼び出しではなく、Orchestrator/Plannerからの委譲で動作する内部エージェントです:
+
+- **Architect** - 設計タスクをPlannerまたはOrchestratorが委譲
+- **Implementer** - 実装タスクをPlannerが委譲
+- **Test Generator** - テスト生成をPlannerまたはCode Reviewerが委譲
 
 ## エスカレーションルール
 
