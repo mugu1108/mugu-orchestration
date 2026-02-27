@@ -187,55 +187,52 @@ console.log('Initializing Supabase client...');
 
 ## OWASP Top 10 (2021) チェックリスト
 
+OWASP Top 10 (2021) に基づいてレビューする。
+
 1. **A01: Broken Access Control**
-   - [ ] RLSポリシーが適切に設定されている
-   - [ ] 認可チェックが実装されている
-   - [ ] 直接オブジェクト参照が保護されている
+   - RLSポリシーが適切に設定されている
+   - 認可チェックが実装されている
+   - 直接オブジェクト参照が保護されている
 
 2. **A02: Cryptographic Failures**
-   - [ ] 機密データが暗号化されている
-   - [ ] 強力な暗号化アルゴリズムを使用
-   - [ ] キー管理が適切
+   - 機密データが暗号化されている
+   - 強力な暗号化アルゴリズムを使用
+   - キー管理が適切
 
 3. **A03: Injection**
-   - [ ] パラメータ化クエリを使用
-   - [ ] 入力バリデーションを実施
-   - [ ] ORMを適切に使用
+   - パラメータ化クエリを使用
+   - 入力バリデーションを実施
+   - ORMを適切に使用
 
 4. **A04: Insecure Design**
-   - [ ] セキュリティバイデザイン
-   - [ ] 脅威モデリングを実施
-   - [ ] セキュアなアーキテクチャ
+   - セキュリティバイデザイン
+   - 脅威モデリングを実施
 
 5. **A05: Security Misconfiguration**
-   - [ ] デフォルト設定を変更
-   - [ ] 不要な機能を無効化
-   - [ ] エラーメッセージを適切に設定
+   - デフォルト設定を変更
+   - 不要な機能を無効化
+   - エラーメッセージを適切に設定
 
 6. **A06: Vulnerable and Outdated Components**
-   - [ ] 依存関係を最新化
-   - [ ] 既知の脆弱性がない
-   - [ ] npm auditを定期実行
+   - 依存関係を最新化
+   - 既知の脆弱性がない
+   - npm auditを定期実行
 
 7. **A07: Identification and Authentication Failures**
-   - [ ] 強力なパスワードポリシー
-   - [ ] セッション管理が適切
-   - [ ] 多要素認証を検討
+   - 強力なパスワードポリシー
+   - セッション管理が適切
 
 8. **A08: Software and Data Integrity Failures**
-   - [ ] CI/CDパイプラインのセキュリティ
-   - [ ] コード署名
-   - [ ] 改ざん検知
+   - CI/CDパイプラインのセキュリティ
+   - 改ざん検知
 
 9. **A09: Security Logging and Monitoring Failures**
-   - [ ] セキュリティイベントのログ記録
-   - [ ] 監視とアラート
-   - [ ] インシデント対応手順
+   - セキュリティイベントのログ記録
+   - 監視とアラート
 
 10. **A10: Server-Side Request Forgery (SSRF)**
-    - [ ] URLバリデーション
-    - [ ] 内部ネットワークへのアクセス制限
-    - [ ] ホワイトリスト方式
+    - URLバリデーション
+    - 内部ネットワークへのアクセス制限
 
 ## mugu-orchestration固有のセキュリティ
 
@@ -324,16 +321,3 @@ npm install --save-dev eslint-plugin-security
 
 Security Reviewerエージェントは、詳細な分析が必要なため**Sonnet**または**Opus**モデルを使用することを推奨します。
 
-## 注意事項
-
-- セキュリティレビューは継続的なプロセス
-- 自動ツールと手動レビューの組み合わせが重要
-- セキュリティは常に進化するため、最新の脅威情報を追跡
-- 疑わしい場合は、専門家に相談
-
-## 参考リソース
-
-- **OWASP Top 10**: https://owasp.org/www-project-top-ten/
-- **CWE (Common Weakness Enumeration)**: https://cwe.mitre.org/
-- **CVSS (Common Vulnerability Scoring System)**: https://www.first.org/cvss/
-- **Supabase Security**: https://supabase.com/docs/guides/platform/security

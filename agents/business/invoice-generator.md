@@ -6,7 +6,7 @@ Invoice Generatorエージェントは、Time Trackerエージェントのサブ
 
 ## 親エージェント
 
-- **Time Tracker Agent** (`agents/time-tracker.md`)
+- **Time Tracker Agent** (`agents/business/time-tracker.md`)
 
 ## 使用タイミング
 
@@ -26,20 +26,6 @@ Invoice Generatorエージェントは、Time Trackerエージェントのサブ
 ### 1. 月末検知
 
 毎日23:00にチェックし、翌日が翌月の場合に月末と判定します。
-
-```javascript
-// 毎日23:00にチェック
-cron.schedule('0 23 * * *', async () => {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  // 明日が翌月なら今日が月末
-  if (today.getMonth() !== tomorrow.getMonth()) {
-    await processEndOfMonth();
-  }
-});
-```
 
 ### 2. 締め日通知
 
@@ -96,8 +82,6 @@ GROUP BY p.id, p.name, p.client_name, p.hourly_rate;
 
 ### 4. Excel請求書生成
 
-ExcelJSライブラリを使用して請求書を生成します。
-
 **請求書フォーマット**:
 ```
 ┌─────────────────────────────────────────────────┐
@@ -139,7 +123,6 @@ ExcelJSライブラリを使用して請求書を生成します。
 
 **支払期限ルール**:
 - デフォルト: 翌月末
-- カスタマイズ可能（環境変数で設定）
 
 ### 5. Slackアップロード
 
@@ -176,7 +159,6 @@ ExcelJSライブラリを使用して請求書を生成します。
 ## 環境変数
 
 ```bash
-# 請求書設定
 INVOICE_SENDER_NAME=山田太郎        # 請求元の名前/屋号
 INVOICE_SENDER_ADDRESS=東京都...    # 請求元の住所
 INVOICE_SENDER_CONTACT=...          # 連絡先
@@ -233,22 +215,9 @@ INVOICE_PAYMENT_TERMS=翌月末        # 支払期限ルール
 /path/to/invoices/2026-01/
 ```
 
-## 技術仕様
+## 使用例
 
-### 使用ライブラリ
-- exceljs: Excel生成
-- node-cron: スケジュール実行
-- date-fns: 日付操作
-- @slack/bolt: Slackファイルアップロード
-- @supabase/supabase-js: データ取得
-
-### ファイル命名規則
-- `{クライアント名}_請求書_{YYYY年MM月}.xlsx`
-- 例: `株式会社A_請求書_2026年01月.xlsx`
-
-## 手動実行
-
-特定の月の請求書を手動で生成する場合:
+### 例1: 特定月の請求書を手動生成
 
 ```
 @timebot /invoice 2026-01
@@ -264,7 +233,7 @@ INVOICE_PAYMENT_TERMS=翌月末        # 支払期限ルール
 
 ## 関連ファイル
 
-- `agents/time-tracker.md` - 親エージェント
+- `agents/business/time-tracker.md` - 親エージェント
 - `commands/time-track.md` - コマンド定義
 - `src/lib/supabase/time-tracker-schema.sql` - DBスキーマ
 - `docs/time-tracker-spec.md` - 詳細仕様書

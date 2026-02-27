@@ -160,10 +160,6 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 
 毎月末日の23:00（JST）に自動で月間サマリーが `SLACK_CHANNEL_ID` に送信されます。
 
-### ステップ8: 月末請求書生成（未実装）
-
-> ⚠️ 請求書生成機能は将来の実装予定です（invoice-generatorサブエージェント）
-
 ## 使用例
 
 ### 例1: 1日の作業フロー
@@ -249,8 +245,6 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 - @slack/bolt: Slack Bot（Socket Mode）
 - @supabase/supabase-js: Supabase連携
 - node-cron: 月末スケジュール実行
-- @notionhq/client: Notion連携（未使用）
-- exceljs: Excel生成（未使用・invoice-generator用）
 
 ### 環境変数
 ```

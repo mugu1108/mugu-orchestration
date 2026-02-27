@@ -161,6 +161,8 @@ WEATHER_LOCATION=Tokyo           # 天気の地域
 8. Slackに投稿
 ```
 
+各情報ソースは独立して取得する。一部のソースが失敗しても、他のセクションは投稿する。取得失敗のセクションには `⚠️ [サービス名]の取得に失敗しました` を表示する。
+
 ## エラーハンドリング
 
 ### 一部のサービスが利用不可の場合
@@ -189,32 +191,6 @@ WEATHER_LOCATION=Tokyo           # 天気の地域
 設定を確認してください。
 ```
 
-## 技術仕様
-
-### 使用ライブラリ
-- @slack/bolt: Slack Bot
-- googleapis: Googleカレンダー連携
-- @notionhq/client: Notion連携
-- @octokit/rest: GitHub API
-- node-cron: スケジュール実行
-- date-fns: 日付操作
-- axios: Weather API
-
-### ファイル構成
-```
-src/bots/daily-briefing/
-├── index.ts              # エントリポイント
-├── services/
-│   ├── calendar.ts       # Googleカレンダー連携
-│   ├── notion.ts         # Notion連携
-│   ├── github.ts         # GitHub連携
-│   └── weather.ts        # 天気API連携
-├── utils/
-│   ├── format.ts         # メッセージフォーマット
-│   └── emoji.ts          # 絵文字マッピング
-└── types.ts              # 型定義
-```
-
 ## 使用例
 
 ### 基本的な朝のフロー
@@ -236,3 +212,4 @@ src/bots/daily-briefing/
 
 ```
 User: @assistant /briefing
+```

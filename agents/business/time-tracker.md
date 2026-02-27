@@ -4,37 +4,6 @@
 
 Time Trackerエージェントは、業務委託の作業時間を正確に記録し、管理する専門エージェントです。Slackを通じて作業の開始・終了を記録し、Supabaseにデータを保存します。
 
-## 実装状況
-
-| 機能 | ステータス |
-|------|-----------|
-| Slack Bot（Socket Mode） | ✅ 実装完了 |
-| `/in` コマンド | ✅ 実装完了 |
-| `/out` コマンド | ✅ 実装完了 |
-| `/status` コマンド | ✅ 実装完了 |
-| `/add` コマンド | ✅ 実装完了 |
-| `/summary` コマンド | ✅ 実装完了 |
-| 月末自動通知 | ✅ 実装完了 |
-| Supabase連携 | ✅ 実装完了 |
-| Notion同期 | ⬜ 未実装 |
-| invoice-generatorサブエージェント | ⬜ 未実装 |
-
-## 実装コード
-
-```
-src/bots/time-tracker/
-├── index.ts              # Botエントリーポイント
-├── services/
-│   └── supabase.ts       # Supabase連携サービス
-└── utils/
-    └── format.ts         # フォーマットユーティリティ
-```
-
-**起動方法**:
-```bash
-npm run time-tracker
-```
-
 ## 使用タイミング
 
 以下の場合にTime Trackerエージェントを使用してください:
@@ -225,18 +194,6 @@ npm run time-tracker
 - duration_minutes: 経過時間（分）
 - note: メモ
 
-### Notion データベース（未実装）
-
-> ⚠️ Notion同期は将来の実装予定です
-
-**作業ログDB**（予定）:
-- タイトル: プロジェクト名
-- クライアント: クライアント名
-- 開始時刻: 作業開始日時
-- 終了時刻: 作業終了日時
-- 経過時間: 分単位
-- ステータス: 作業中 / 完了
-
 ## サブエージェント
 
 ### invoice-generator（未実装）
@@ -252,26 +209,7 @@ npm run time-tracker
 - Excel形式の請求書生成
 - Slackへのファイルアップロード
 
-詳細は `agents/invoice-generator.md` を参照。
-
-## 技術仕様
-
-### 使用ライブラリ
-- @slack/bolt: Slack Bot（Socket Mode）
-- @supabase/supabase-js: Supabase連携
-- node-cron: 月末スケジュール実行
-- @notionhq/client: Notion連携（未使用）
-
-### 環境変数
-```
-SLACK_BOT_TOKEN=xoxb-...
-SLACK_APP_TOKEN=xapp-...
-SLACK_CHANNEL_ID=C...
-SUPABASE_URL=...
-SUPABASE_SERVICE_ROLE_KEY=...
-NOTION_API_KEY=...
-NOTION_TIME_LOGS_DB_ID=...
-```
+詳細は `agents/business/invoice-generator.md` を参照。
 
 ## 使用例
 
@@ -319,7 +257,7 @@ NOTION_TIME_LOGS_DB_ID=...
 
 ## 関連ファイル
 
-- `agents/invoice-generator.md` - 請求書生成サブエージェント
+- `agents/business/invoice-generator.md` - 請求書生成サブエージェント
 - `commands/time-track.md` - コマンド定義
 - `skills/time-track/SKILL.md` - スキル登録
 - `src/lib/supabase/time-tracker-schema.sql` - DBスキーマ
