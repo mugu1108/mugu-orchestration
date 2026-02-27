@@ -10,9 +10,16 @@ triggers:
   - "generate skill"
   - "add automation"
   - "make new skill"
+category: workflow
 ---
 
-# メタスキル: スキルジェネレーター
+# /meta-skill - スキルジェネレーター
+
+## 使用方法
+
+```
+/meta-skill <スキル名> <スキルの目的・要件の説明>
+```
 
 このスキルは、**mugu-orchestration固有**の新しいスキルを作成する手順をガイドします。
 
