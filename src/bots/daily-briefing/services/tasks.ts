@@ -39,9 +39,26 @@ async function getTasksByDueDate(date: Date): Promise<GoogleTask[]> {
   }));
 }
 
-// 今日期限のタスクを取得
+// 今日期限+期限切れの未完了タスクを取得
 export async function getTodayTasks(): Promise<GoogleTask[]> {
-  return getTasksByDueDate(new Date());
+  const tasksClient = getTasksClient();
+  const today = new Date();
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+
+  const response = await tasksClient.tasks.list({
+    tasklist: '@default',
+    showCompleted: false,
+    dueMax: endOfDay.toISOString(),
+  });
+
+  const items = response.data.items || [];
+
+  return items.map((item): GoogleTask => ({
+    id: item.id || '',
+    title: item.title || '(タイトルなし)',
+    due: item.due ? new Date(item.due) : undefined,
+    status: (item.status as GoogleTask['status']) || 'needsAction',
+  }));
 }
 
 // 明日期限のタスクを取得

@@ -16,8 +16,8 @@ import {
 config();
 
 // 環境変数の検証
-const botToken = process.env.SLACK_BOT_TOKEN;
-const appToken = process.env.SLACK_APP_TOKEN;
+const botToken = process.env.BRIEFING_BOT_TOKEN || process.env.SLACK_BOT_TOKEN;
+const appToken = process.env.BRIEFING_APP_TOKEN || process.env.SLACK_APP_TOKEN;
 const channelId = process.env.BRIEFING_CHANNEL_ID || process.env.SLACK_CHANNEL_ID;
 const briefingTime = process.env.BRIEFING_TIME || '08:00';
 const eveningTime = process.env.BRIEFING_EVENING_TIME || '18:00';
@@ -173,8 +173,11 @@ app.event('app_mention', async ({ event, say }) => {
 // /briefing コマンド - 今日の予定を表示
 async function handleBriefingCommand(say: (message: string) => Promise<unknown>) {
   try {
-    const events = await getTodayEvents();
-    const message = generateManualBriefingMessage(events);
+    const [events, tasks] = await Promise.all([
+      getTodayEvents(),
+      getTodayTasks().catch(() => []),
+    ]);
+    const message = generateManualBriefingMessage(events, tasks);
     await say(message);
   } catch (error) {
     console.error('ブリーフィングエラー:', error);

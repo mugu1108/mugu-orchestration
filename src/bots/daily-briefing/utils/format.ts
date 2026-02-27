@@ -95,7 +95,10 @@ export function getGreeting(): string {
 }
 
 // 手動実行用のブリーフィングメッセージを生成
-export function generateManualBriefingMessage(events: CalendarEvent[]): string {
+export function generateManualBriefingMessage(
+  events: CalendarEvent[],
+  tasks: GoogleTask[] = []
+): string {
   const today = new Date();
   const dateStr = formatDate(today);
   const greeting = getGreeting();
@@ -120,6 +123,11 @@ export function generateManualBriefingMessage(events: CalendarEvent[]): string {
       message += `${formatEventLine(event)}\n`;
     }
 
+    message += `\n`;
+  }
+
+  if (tasks.length > 0) {
+    message += formatTaskSection(tasks, '今日期限のタスク');
     message += `\n`;
   }
 
