@@ -2,18 +2,25 @@
 
 このドキュメントは、**Marp Markdownの正確な構文とベストプラクティス**を記載したリファレンスです。Marpは、Markdownからプレゼンテーションスライドを生成するツールで、独自の構文とディレクティブを持っています。
 
+> **関連ドキュメント**:
+> - `style-guide.md` - カラーパレット、禁止事項
+> - `layout-patterns.md` - 40種類のレイアウトパターン
+
 ## 目次
 
 1. [フロントマター](#フロントマター)
-2. [スライド区切り](#スライド区切り)
-3. [レイアウト指定](#レイアウト指定)
-4. [テキスト装飾](#テキスト装飾)
-5. [リスト](#リスト)
-6. [コードブロック](#コードブロック)
-7. [画像](#画像)
-8. [テーブル](#テーブル)
-9. [カスタムスタイル](#カスタムスタイル)
-10. [ページ番号とヘッダー/フッター](#ページ番号とヘッダーフッター)
+2. [Tailwind CSS統合](#tailwind-css統合)
+3. [グラデーション背景](#グラデーション背景)
+4. [スライド区切り](#スライド区切り)
+5. [レイアウト指定](#レイアウト指定)
+6. [テキスト装飾](#テキスト装飾)
+7. [リスト](#リスト)
+8. [コードブロック](#コードブロック)
+9. [パネルデザイン](#パネルデザイン)
+10. [画像](#画像)
+11. [テーブル](#テーブル)
+12. [カスタムスタイル](#カスタムスタイル)
+13. [ページ番号とヘッダー/フッター](#ページ番号とヘッダーフッター)
 
 ---
 
@@ -87,14 +94,146 @@ style: |
   }
   h1 {
     font-size: 48px;
-    color: #1a202c;
+    color: #1f2937;  /* gray-800 */
     font-weight: bold;
   }
   h2 {
     font-size: 36px;
-    color: #2d3748;
+    color: #374151;  /* gray-700 */
   }
 ---
+```
+
+---
+
+## Tailwind CSS統合
+
+Tailwind CSSを使用することで、グリッドレイアウトやパネルデザインを簡単に実現できます。
+
+### 読み込み方法
+
+```html
+<!-- スライドの先頭で読み込み -->
+<script src="theme/js/tailwindcss-3.0.16.js"></script>
+<script src="theme/js/tailwind.config.js"></script>
+```
+
+### tailwind.config.js の設定
+
+```javascript
+// 重要: preflight: false でMarpのデフォルトスタイルを保持
+module.exports = {
+  corePlugins: {
+    preflight: false  // Marpのスタイルを上書きしない
+  },
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#1B4565',
+        'secondary': '#3E9BA4',
+      }
+    }
+  }
+}
+```
+
+### よく使うTailwindクラス
+
+| カテゴリ | クラス | 用途 |
+|---------|--------|------|
+| グリッド | `grid grid-cols-2 gap-6` | 2カラムレイアウト |
+| グリッド | `grid grid-cols-3 gap-4` | 3カラムレイアウト |
+| 背景 | `bg-gray-50`, `bg-gray-100` | パネル背景 |
+| テキスト | `text-gray-700`, `text-gray-800` | テキストカラー |
+| 角丸 | `rounded-lg`, `rounded-xl` | 角丸 |
+| 影 | `shadow`, `shadow-lg` | ボックスシャドウ |
+| パディング | `p-4`, `p-6` | 内側余白 |
+| マージン | `mt-6`, `mb-4` | 外側余白 |
+| ボーダー | `border-l-4 border-gray-400` | 左ボーダー |
+| スペース | `space-y-3` | 子要素間の縦余白 |
+
+### 使用例
+
+```html
+# 2カラム比較
+
+<div class="grid grid-cols-2 gap-6 mt-6">
+  <div class="bg-gray-50 rounded-xl shadow-lg p-6 border-l-4 border-gray-400">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Before</h2>
+    <ul class="text-lg space-y-3 text-gray-700">
+      <li>問題点1</li>
+      <li>問題点2</li>
+    </ul>
+  </div>
+  <div class="bg-gray-100 rounded-xl shadow-lg p-6 border-l-4" style="border-color:#3E9BA4;">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">After</h2>
+    <ul class="text-lg space-y-3 text-gray-700">
+      <li>改善点1</li>
+      <li>改善点2</li>
+    </ul>
+  </div>
+</div>
+```
+
+---
+
+## グラデーション背景
+
+セクション区切りや強調スライドにグラデーション背景を使用します。
+
+### セクション区切りスライド
+
+```markdown
+<!--
+_backgroundImage: "linear-gradient(to right, #1B4565, #3E9BA4)"
+_color: #fff
+-->
+
+# 2. 本題
+```
+
+### タイトルスライド
+
+```markdown
+<!-- _class: lead -->
+<!--
+_backgroundImage: "linear-gradient(to right, #1B4565, #3E9BA4)"
+_color: #fff
+-->
+
+# プレゼンテーションタイトル
+
+**発表者名**
+2026年2月3日
+```
+
+### パネル内グラデーション
+
+```html
+<div class="rounded-xl shadow-lg p-6 text-white"
+     style="background: linear-gradient(135deg, #1B4565 0%, #3E9BA4 100%);">
+  <h2 class="text-2xl font-bold mb-4">ハイライト</h2>
+  <p class="text-lg">最も重要な情報</p>
+</div>
+```
+
+### グラデーションの種類
+
+| 種類 | CSS | 用途 |
+|------|-----|------|
+| 水平 | `linear-gradient(to right, #1B4565, #3E9BA4)` | セクション背景 |
+| 斜め | `linear-gradient(135deg, #1B4565 0%, #3E9BA4 100%)` | パネル強調 |
+
+### 使用ルール
+
+```
+✅ セクション区切りスライドの背景
+✅ タイトルスライドの背景
+✅ 統計表示パネルの強調
+✅ CTAスライドの背景
+
+❌ 通常のコンテンツスライド全体
+❌ 1スライドに複数のグラデーション
 ```
 
 ---
@@ -487,6 +626,87 @@ function App() {
   }
 ```
 ````
+
+---
+
+## パネルデザイン
+
+Tailwind CSSを使用したパネルデザインパターンです。
+
+### 基本パネル
+
+```html
+<div class="bg-gray-50 rounded-xl shadow-lg p-6">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800">タイトル</h2>
+  <p class="text-lg text-gray-700">説明テキスト</p>
+</div>
+```
+
+### 左ボーダー付きパネル
+
+```html
+<div class="bg-gray-50 rounded-xl shadow-lg p-6 border-l-4 border-gray-400">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800">重要なポイント</h2>
+  <p class="text-lg text-gray-700">この点に注意してください</p>
+</div>
+```
+
+### アクセントボーダーパネル
+
+```html
+<div class="bg-gray-50 rounded-xl shadow-lg p-6 border-l-4" style="border-color:#3E9BA4;">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800">ベストプラクティス</h2>
+  <p class="text-lg text-gray-700">推奨される方法</p>
+</div>
+```
+
+### グラデーション背景パネル
+
+```html
+<div class="rounded-xl shadow-lg p-6 text-white"
+     style="background: linear-gradient(135deg, #1B4565 0%, #3E9BA4 100%);">
+  <h2 class="text-2xl font-bold mb-4">ハイライト</h2>
+  <p class="text-lg">最も重要な情報</p>
+</div>
+```
+
+### 統計表示パネル
+
+```html
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <div class="bg-gray-100 rounded-lg shadow p-4 text-center">
+    <p class="text-4xl font-bold text-gray-600">35万</p>
+    <p class="text-lg mt-2 text-gray-700">総文字数</p>
+  </div>
+  <div class="rounded-lg shadow p-4 text-center"
+       style="background: linear-gradient(135deg, #1B4565 0%, #3E9BA4 100%);">
+    <p class="text-4xl font-bold text-white">774件</p>
+    <p class="text-lg mt-2 text-white">Issue対応</p>
+  </div>
+  <div class="bg-gray-100 rounded-lg shadow p-4 text-center">
+    <p class="text-4xl font-bold text-gray-600">50%</p>
+    <p class="text-lg mt-2 text-gray-700">効率向上</p>
+  </div>
+</div>
+```
+
+### 情報/警告パネル
+
+```html
+<!-- 情報パネル -->
+<div class="bg-gray-100 rounded-lg p-4 border-l-4 border-gray-500">
+  <p class="text-lg text-gray-700">
+    <span class="font-bold">Note</span> 補足情報をここに記載
+  </p>
+</div>
+
+<!-- 警告パネル -->
+<div class="bg-gray-100 rounded-lg p-4 border-l-4" style="border-color:#1B4565;">
+  <p class="text-lg text-gray-700">
+    <span class="font-bold">Warning</span> 注意事項をここに記載
+  </p>
+</div>
+```
 
 ---
 

@@ -4,6 +4,11 @@
 
 Slide Creatorエージェントは、Marp形式のプレゼンテーションスライドを自動生成する専門エージェントです。セミナー資料、ワークショップ資料、製品紹介スライドを、ビジュアル階層と一貫性のあるデザインで作成します。
 
+> **設計思想**: 「AIに丸投げ」ではなく「人間が設計した仕組みの中でAIが動く」
+> - スタイルガイドに厳密に準拠
+> - レイアウトパターンから選択（毎回新しいHTMLを生成しない）
+> - 禁止事項を遵守
+
 ## 使用タイミング
 
 以下の場合にSlide Creatorエージェントを使用してください：
@@ -141,14 +146,29 @@ Slide Creator:
 
 ## リファレンスドキュメント
 
-スライド生成時に参照するドキュメント：
+スライド生成時に**必ず**参照するドキュメント：
 
-| ファイル | 内容 |
-|---------|------|
-| `skills/slide/references/visual-hierarchy.md` | ビジュアル階層ガイドライン |
-| `skills/slide/references/emoji-usage.md` | 絵文字使用ガイド |
-| `skills/slide/references/marp-syntax.md` | Marp構文リファレンス |
-| `docs/slide-content-guidelines.md` | コンテンツ量制限ルール |
+| ファイル | 内容 | 重要度 |
+|---------|------|--------|
+| `skills/slide/references/style-guide.md` | **カラーパレット、禁止事項、デザイン哲学** | ⭐⭐⭐必読 |
+| `skills/slide/references/layout-patterns.md` | **40種類のレイアウトパターン（7カテゴリ）** | ⭐⭐⭐必読 |
+| `skills/slide/references/visual-hierarchy.md` | ビジュアル階層、タイポグラフィシステム | ⭐⭐ |
+| `skills/slide/references/marp-syntax.md` | Marp構文、Tailwind CSS統合、パネルデザイン | ⭐⭐ |
+| `skills/slide/references/emoji-usage.md` | 絵文字使用ガイド（装飾的絵文字は禁止） | ⭐ |
+| `docs/slide-content-guidelines.md` | コンテンツ量制限ルール | ⭐ |
+
+### デザインシステム概要
+
+**カラーパレット**:
+- グレースケール基調（gray-50〜gray-800）
+- アクセントカラー: ネイビー `#1B4565` + ティール `#3E9BA4`
+- 1スライド1-2色のアクセントまで
+
+**禁止事項**:
+- ❌ タイトルにコロンを使わない
+- ❌ 感嘆符・疑問符を避ける
+- ❌ 装飾的な絵文字を使わない
+- ❌ red-600/green-600等の派手な色を使わない
 
 ## 関連ファイル
 

@@ -2,16 +2,19 @@
 
 このドキュメントは、Marp形式のプレゼンテーションスライドにおける**ビジュアル階層とデザインガイドライン**を定義します。すべてのスライドは、このガイドラインに準拠することで、一貫性のあるプロフェッショナルなデザインを実現できます。
 
+> **重要**: このドキュメントは `style-guide.md` および `layout-patterns.md` と連携して使用してください。
+
 ## 目次
 
 1. [フォントサイズ階層](#フォントサイズ階層)
-2. [カラースキーム](#カラースキーム)
-3. [スペーシング](#スペーシング)
-4. [⚠️ コンテンツ量の制限](#コンテンツ量の制限)
-5. [コントラストとアクセシビリティ](#コントラストとアクセシビリティ)
-6. [レイアウトパターン](#レイアウトパターン)
-7. [タイポグラフィ](#タイポグラフィ)
-8. [ベストプラクティス](#ベストプラクティス)
+2. [タイポグラフィシステム（Tailwind）](#タイポグラフィシステムtailwind)
+3. [カラースキーム](#カラースキーム)
+4. [スペーシング](#スペーシング)
+5. [⚠️ コンテンツ量の制限](#コンテンツ量の制限)
+6. [コントラストとアクセシビリティ](#コントラストとアクセシビリティ)
+7. [レイアウトパターン](#レイアウトパターン)
+8. [タイポグラフィ](#タイポグラフィ)
+9. [ベストプラクティス](#ベストプラクティス)
 
 ---
 
@@ -75,85 +78,124 @@ body (24px) = 基準
 
 ---
 
+## タイポグラフィシステム（Tailwind）
+
+Tailwind CSSを使用する場合の統一されたフォントサイズクラスです。
+
+| クラス | 用途 | サイズ目安 |
+|--------|------|-----------|
+| `text-em-3xl` | 数値強調、インパクトキーワード | 48-56px |
+| `text-em-2xl` | パネル見出し、セクションタイトル | 36-40px |
+| `text-em-xl` | サブ見出し | 28-32px |
+| `text-em-lg` | 本文、リスト項目 | 22-24px |
+| `text-em-base` | 補足説明、キャプション | 18-20px |
+
+### 使用例
+
+```html
+<!-- 数値強調 -->
+<p class="text-em-3xl font-bold text-gray-600">35万文字</p>
+
+<!-- パネル見出し -->
+<h1 class="text-em-2xl font-bold mb-4 text-gray-800">セクション名</h1>
+
+<!-- 本文 -->
+<ul class="text-em-lg space-y-3 text-gray-700">
+  <li>項目1</li>
+</ul>
+```
+
+---
+
 ## カラースキーム
 
-一貫性のあるカラースキームを使用することで、プロフェッショナルな印象を与えます。
+### ⚠️ 重要な変更点
 
-### メインカラー
+**グレースケール基調 + 限定的なアクセントカラー**を使用します。派手な色は禁止です。
 
-#### プライマリカラー（見出し）
+### メインカラー（Tailwindグレースケール）
 
-| 色名 | カラーコード | 用途 | 例 |
-|------|-------------|------|-----|
-| **Dark Gray** | `#1a202c` | h1、最も重要な見出し | ![#1a202c](https://via.placeholder.com/15/1a202c/1a202c.png) |
-| **Medium Gray** | `#2d3748` | h2、本文 | ![#2d3748](https://via.placeholder.com/15/2d3748/2d3748.png) |
-| **Light Gray** | `#4a5568` | h3、補足情報 | ![#4a5568](https://via.placeholder.com/15/4a5568/4a5568.png) |
+| Tailwindクラス | カラーコード | 用途 |
+|---------------|-------------|------|
+| `bg-gray-50` | `#f9fafb` | パネル背景（明） |
+| `bg-gray-100` | `#f3f4f6` | パネル背景（中） |
+| `text-gray-600` | `#4b5563` | 補助テキスト |
+| `text-gray-700` | `#374151` | サブ見出し |
+| `text-gray-800` | `#1f2937` | メインテキスト、主要見出し |
 
-#### セカンダリカラー（強調）
+### アクセントカラー（限定使用）
 
-| 色名 | カラーコード | 用途 | 例 |
-|------|-------------|------|-----|
-| **Amber** | `#fbbf24` | コード内の強調（strong） | ![#fbbf24](https://via.placeholder.com/15/fbbf24/fbbf24.png) |
-| **Light Purple** | `#a78bfa` | 斜体（em）、特殊な強調 | ![#a78bfa](https://via.placeholder.com/15/a78bfa/a78bfa.png) |
-| **Teal** | `#319795` | 成功、完了 | ![#319795](https://via.placeholder.com/15/319795/319795.png) |
+| 色名 | カラーコード | 用途 |
+|------|-------------|------|
+| **ネイビー** | `#1B4565` | プライマリアクセント、セクション背景 |
+| **ティール** | `#3E9BA4` | セカンダリアクセント、グラデーション |
 
-#### アクセントカラー（状態表示）
+```
+⚠️ 重要: 1スライドにつきアクセントカラーは1-2色まで
+```
 
-| 色名 | カラーコード | 用途 | 例 |
-|------|-------------|------|-----|
-| **Green** | `#22c55e` | 成功、正解 | ![#22c55e](https://via.placeholder.com/15/22c55e/22c55e.png) |
-| **Orange** | `#f59e0b` | 警告、注意 | ![#f59e0b](https://via.placeholder.com/15/f59e0b/f59e0b.png) |
-| **Red** | `#ef4444` | エラー、問題 | ![#ef4444](https://via.placeholder.com/15/ef4444/ef4444.png) |
-| **Blue** | `#3b82f6` | 情報、ヒント | ![#3b82f6](https://via.placeholder.com/15/3b82f6/3b82f6.png) |
-
-#### 背景カラー
-
-| 色名 | カラーコード | 用途 | 例 |
-|------|-------------|------|-----|
-| **White** | `#ffffff` | メイン背景 | ![#ffffff](https://via.placeholder.com/15/ffffff/ffffff.png) |
-| **Light Gray** | `#f7fafc` | インラインコード背景 | ![#f7fafc](https://via.placeholder.com/15/f7fafc/f7fafc.png) |
-| **Dark Gray** | `#2d3748` | コードブロック背景 | ![#2d3748](https://via.placeholder.com/15/2d3748/2d3748.png) |
-
-### カラー適用例
+### グラデーション
 
 ```css
-h1 {
-  color: #1a202c;  /* Dark Gray */
-}
+/* セクション背景用 */
+background: linear-gradient(to right, #1B4565, #3E9BA4);
 
-h2 {
-  color: #2d3748;  /* Medium Gray */
+/* パネル強調用（斜め） */
+background: linear-gradient(135deg, #1B4565 0%, #3E9BA4 100%);
+```
+
+### 使用禁止カラー
+
+以下のカラーは**使用禁止**です：
+
+| 禁止カラー | 理由 |
+|-----------|------|
+| `red-600` / `#dc2626` | 派手すぎる |
+| `green-600` / `#16a34a` | 派手すぎる |
+| `blue-600` / `#2563eb` | アクセントカラーと競合 |
+| `yellow-500` / `#eab308` | 視認性が低い |
+
+### カラー適用例（新方式）
+
+```css
+/* Tailwindクラスを優先使用 */
+h1, h2 {
+  /* text-gray-800 */
+  color: #1f2937;
 }
 
 h3 {
-  color: #4a5568;  /* Light Gray */
+  /* text-gray-700 */
+  color: #374151;
 }
 
 p, li {
-  color: #2d3748;  /* Medium Gray */
+  /* text-gray-700 */
+  color: #374151;
 }
 
-strong {
-  color: #fbbf24;  /* Amber - はっきり見える色 */
+/* パネル背景 */
+.panel {
+  /* bg-gray-50 */
+  background-color: #f9fafb;
 }
 
-em {
-  color: #a78bfa;  /* Light Purple - はっきり見える色 */
-}
-
-code {
-  background-color: #f7fafc;  /* Light Gray */
-}
-
+/* コードブロック */
 pre {
-  background-color: #2d3748;  /* Dark Gray */
-  color: #ffffff;  /* White - 最もはっきり見える */
-}
-
-pre code {
-  color: #ffffff;  /* White - コードブロック内も白 */
+  background-color: #1f2937;  /* gray-800 */
+  color: #ffffff;
 }
 ```
+
+### 旧カラー（非推奨）
+
+以下は旧方式のカラーです。新規スライドでは上記の新方式を使用してください。
+
+| 色名 | カラーコード | 用途 |
+|------|-------------|------|
+| ~~Dark Gray~~ | `#1a202c` | → `text-gray-800`を使用 |
+| ~~Medium Gray~~ | `#2d3748` | → `text-gray-700`を使用 |
+| ~~Light Gray~~ | `#4a5568` | → `text-gray-600`を使用 |
 
 ---
 
@@ -347,9 +389,75 @@ WCAG 2.1のAAレベル（4.5:1以上）を推奨します。
 
 ## レイアウトパターン
 
-一貫性のあるレイアウトパターンを使用します。
+> **詳細は `layout-patterns.md` を参照してください。**
+> 40種類のパターンが7カテゴリに分類されています。
 
-### 1. タイトルスライド（Lead）
+### パターンカテゴリ一覧
+
+| カテゴリ | パターン数 | 主な用途 |
+|---------|-----------|---------|
+| A. タイトル/セクション | 5種 | 開始、終了、目次 |
+| B. カラムレイアウト | 8種 | 比較、グリッド |
+| C. 縦リスト | 4種 | ステップ、タイムライン |
+| D. パネルデザイン | 5種 | 情報ボックス |
+| E. 背景/画像 | 4種 | ビジュアル |
+| F. 強調/特殊 | 3種 | 統計、キーメッセージ |
+| G. 応用パターン | 10種 | 事例、CTA |
+
+### 基本パターン（クイックリファレンス）
+
+#### タイトルスライド
+
+```markdown
+<!--
+_backgroundImage: "linear-gradient(to right, #1B4565, #3E9BA4)"
+_color: #fff
+-->
+
+# プレゼンテーションタイトル
+
+**発表者名**
+日付
+```
+
+#### 2カラム比較（Tailwind）
+
+```html
+<div class="grid grid-cols-2 gap-6 mt-6">
+  <div class="bg-gray-50 rounded-xl shadow-lg p-6 border-l-4 border-gray-400">
+    <h1 class="text-em-2xl font-bold mb-4 text-gray-800">Before</h1>
+    <ul class="text-em-lg space-y-3 text-gray-700">
+      <li>項目1</li>
+    </ul>
+  </div>
+  <div class="bg-gray-100 rounded-xl shadow-lg p-6 border-l-4" style="border-color:#3E9BA4;">
+    <h1 class="text-em-2xl font-bold mb-4 text-gray-800">After</h1>
+    <ul class="text-em-lg space-y-3 text-gray-700">
+      <li>項目1</li>
+    </ul>
+  </div>
+</div>
+```
+
+#### 統計表示
+
+```html
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <div class="bg-gray-100 rounded-lg shadow p-4 text-center">
+    <p class="text-em-3xl font-bold text-gray-600">50%</p>
+    <p class="text-em-lg mt-2 text-gray-700">効率向上</p>
+  </div>
+</div>
+```
+
+### 旧パターン（非推奨）
+
+以下は旧方式のパターンです。新規スライドでは `layout-patterns.md` のパターンを使用してください。
+
+<details>
+<summary>旧パターンを表示</summary>
+
+#### 1. タイトルスライド（旧）
 
 ```markdown
 <!-- _class: lead -->
@@ -362,89 +470,26 @@ WCAG 2.1のAAレベル（4.5:1以上）を推奨します。
 日付
 ```
 
-**特徴**:
-- 中央揃え
-- 大きなフォントサイズ
-- シンプルで印象的
-
-### 2. セクション区切りスライド
+#### 2. 2カラムレイアウト（旧）
 
 ```markdown
-<!-- _class: lead -->
-
-# セクションタイトル
-```
-
-**特徴**:
-- 中央揃え
-- h1のみ使用
-- 次のセクションへの移行を明確に
-
-### 3. コンテンツスライド（標準）
-
-```markdown
-# スライドタイトル
-
-## サブセクション
-
-本文やリストなど
-
-- 項目1
-- 項目2
-```
-
-**特徴**:
-- 左揃え
-- h1はスライドタイトル
-- h2以下でコンテンツを整理
-
-### 4. 2カラムレイアウト
-
-```markdown
-# タイトル
-
 <div style="display: flex; gap: 40px;">
 <div style="flex: 1;">
 
 ## 左側
 - 項目1
-- 項目2
 
 </div>
 <div style="flex: 1;">
 
 ## 右側
-- 項目3
-- 項目4
+- 項目2
 
 </div>
 </div>
 ```
 
-**特徴**:
-- 比較やコントラストを示す
-- Before/After
-- 問題/解決策
-
-### 5. コードメインのスライド
-
-```markdown
-# 実装例
-
-\`\`\`javascript
-function example() {
-  return "Hello, World!";
-}
-\`\`\`
-
-**ポイント**:
-- 簡潔な実装
-- 読みやすい
-```
-
-**特徴**:
-- コードブロックを中心に
-- 簡潔な説明を添える
+</details>
 
 ---
 
