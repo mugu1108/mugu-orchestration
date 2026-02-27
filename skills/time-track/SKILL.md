@@ -34,7 +34,7 @@ tools:
 
 ## 概要
 
-Time Trackerは、Slackを通じて業務委託の作業時間を記録するシステムです。データはSupabase（マスターDB）に保存され、Notion（閲覧用）にも同期されます。月末には自動で請求書が生成されます。
+Time Trackerは、Slackを通じて業務委託の作業時間を記録するシステムです。データはSupabase（マスターDB）に保存されます。月末には自動で請求書が生成されます。
 
 ## 起動タイミング
 
@@ -47,7 +47,6 @@ Time Trackerは、Slackを通じて業務委託の作業時間を記録するシ
 
 - Slack Appがセットアップされている（Socket Mode）
 - Supabaseにテーブルが作成されている
-- Notionに作業ログDBが作成されている
 - プロジェクトが事前に登録されている
 
 ## ワークフローステップ
@@ -72,8 +71,7 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 1. プロジェクト名の検証
 2. 現在作業中でないことを確認
 3. Supabaseに開始時刻を記録
-4. Notionに同期
-5. Slackに開始通知を送信
+4. Slackに開始通知を送信
 
 **応答**:
 ```
@@ -92,9 +90,8 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 1. 現在作業中のセッションを取得
 2. 終了時刻と経過時間を計算
 3. Supabaseに記録
-4. Notionに同期
-5. 今日の合計を計算
-6. Slackに終了通知を送信
+4. 今日の合計を計算
+5. Slackに終了通知を送信
 
 **応答**:
 ```
@@ -223,7 +220,6 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 | 保存先 | 用途 | 内容 |
 |--------|------|------|
 | **Supabase** | マスターDB | 全作業ログ、正確な集計、請求書履歴 |
-| **Notion** | 閲覧用 | カレンダービュー、手動修正可能 |
 | **Slack** | 通知 | リアルタイム通知、Excelファイル共有 |
 
 ## サブエージェント
@@ -253,8 +249,6 @@ SLACK_APP_TOKEN=xapp-...
 SLACK_CHANNEL_ID=C...
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
-NOTION_API_KEY=...
-NOTION_TIME_LOGS_DB_ID=...
 INVOICE_SENDER_NAME=...
 INVOICE_SENDER_ADDRESS=...
 INVOICE_BANK_INFO=...

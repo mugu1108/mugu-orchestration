@@ -52,9 +52,6 @@ time-tracker エージェント
   │   ├── projects テーブル
   │   └── time_logs テーブル
   │
-  ├── Notion（閲覧用ビュー）
-  │   └── 作業ログDB（同期）
-  │
   └── invoice-generator サブエージェント
       ├── 月末検知
       ├── 請求書生成（Excel）
@@ -72,8 +69,6 @@ Slack Bot受信
     ↓
 Supabaseに開始時刻を記録
     ↓
-Notionに同期
-    ↓
 Slack: 「プロジェクトAの作業を開始しました」
 
     ... 作業中 ...
@@ -83,8 +78,6 @@ Slack: 「プロジェクトAの作業を開始しました」
 Slack Bot受信
     ↓
 Supabaseに終了時刻・経過時間を記録
-    ↓
-Notionに同期
     ↓
 Slack: 「作業終了: 2時間30分 / 今日の合計: 5時間15分」
 
@@ -117,7 +110,6 @@ Slackにファイルアップロード
 | `/summary [YYYY-MM]` | 月間サマリーを表示（省略時は今月） | ✅ 実装済み |
 | 月末自動通知 | 毎月末23:00に月間サマリーを自動送信 | ✅ 実装済み |
 | Supabase保存 | 全ログをマスターDBに保存 | ✅ 実装済み |
-| Notion同期 | 閲覧用にNotionに同期 | ⬜ 未実装 |
 
 ### invoice-generator サブエージェント（子）
 
@@ -196,21 +188,6 @@ CREATE TABLE invoices (
 -- ユニーク制約（同じプロジェクト・月の重複防止）
 CREATE UNIQUE INDEX idx_invoices_unique ON invoices(project_id, year_month);
 ```
-
-### Notion データベース
-
-#### 作業ログDB（閲覧用）
-
-| プロパティ | タイプ | 説明 |
-|-----------|--------|------|
-| タイトル | Title | プロジェクト名 |
-| クライアント | Select | クライアント名 |
-| 開始時刻 | Date | 作業開始日時 |
-| 終了時刻 | Date | 作業終了日時 |
-| 経過時間 | Number | 経過時間（分） |
-| 経過時間（表示） | Formula | 「2時間30分」形式 |
-| ステータス | Select | 作業中 / 完了 |
-| メモ | Text | 備考 |
 
 ---
 
@@ -389,8 +366,7 @@ cron.schedule('0 23 * * *', async () => {
 | 2-3 | /out コマンド実装 | 🤖 | 作業終了機能、今日の合計通知 | [ ] |
 | 2-4 | /status コマンド実装 | 🤖 | 状態確認機能（オプション） | [ ] |
 | 2-5 | Supabase連携実装 | 🤖 | DB読み書き機能 | [ ] |
-| 2-6 | Notion同期実装 | 🤖 | 閲覧用DB同期 | [ ] |
-| 2-7 | 環境変数設定 | 👤 | .envファイルにトークン等を設定 | [ ] |
+| 2-6 | 環境変数設定 | 👤 | .envファイルにトークン等を設定 | [ ] |
 | 2-8 | 動作確認 | 👤 | /in, /out の実環境テスト | [ ] |
 
 #### Phase 3: invoice-generator 実装
@@ -468,7 +444,6 @@ Phase 4
 3. `/out` コマンド実装
 4. `/status` コマンド実装（オプション）
 5. Supabase保存機能
-6. Notion同期機能
 
 **👤 ユーザータスク**:
 1. 環境変数設定
@@ -507,7 +482,6 @@ Phase 4
   "dependencies": {
     "@slack/bolt": "^3.x",           // Slack Socket Mode
     "@supabase/supabase-js": "^2.x", // Supabase Client
-    "@notionhq/client": "^2.x",      // Notion API
     "exceljs": "^4.x",               // Excel生成
     "node-cron": "^3.x",             // スケジュール実行
     "date-fns": "^3.x"               // 日付操作
@@ -526,10 +500,6 @@ SLACK_CHANNEL_ID=C...
 # Supabase
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
-
-# Notion
-NOTION_API_KEY=...
-NOTION_TIME_LOGS_DB_ID=...
 
 # 請求書設定
 INVOICE_SENDER_NAME=...
@@ -567,7 +537,7 @@ INVOICE_BANK_INFO=...
 
 ---
 
-### Phase 2: time-tracker 実装 ✅ 完了（Notion同期以外）
+### Phase 2: time-tracker 実装 ✅ 完了
 
 #### 🤖 Claude Codeタスク
 - [x] **2-1** Slack Bot基盤コード作成（Socket Mode接続）
@@ -599,26 +569,19 @@ INVOICE_BANK_INFO=...
   - [x] node-cronによる毎日23:00チェック
   - [x] 月末判定ロジック
   - [x] 月間サマリー自動送信
-- [ ] **2-9** Notion同期実装（未実装）
-  - [ ] 作業ログDB同期
-
 #### 👤 ユーザータスク
-- [x] **2-10** .envファイルに環境変数設定
+- [x] **2-9** .envファイルに環境変数設定
   - [x] SLACK_BOT_TOKEN
   - [x] SLACK_APP_TOKEN
   - [x] SLACK_CHANNEL_ID
   - [x] SUPABASE_URL
   - [x] SUPABASE_SERVICE_ROLE_KEY
-  - [ ] NOTION_API_KEY（未設定）
-  - [ ] NOTION_TIME_LOGS_DB_ID（未設定）
-- [x] **2-11** Supabaseでテーブル作成（SQLを実行）
-- [ ] **2-12** Notionで作業ログDB作成（未実施）
-- [x] **2-13** `/in` コマンド動作確認
-- [x] **2-14** `/out` コマンド動作確認
-- [x] **2-15** `/add` コマンド動作確認
-- [x] **2-16** `/summary` コマンド動作確認
-- [x] **2-17** Supabaseにデータが保存されることを確認
-- [ ] **2-18** Notionにデータが同期されることを確認（未実施）
+- [x] **2-10** Supabaseでテーブル作成（SQLを実行）
+- [x] **2-11** `/in` コマンド動作確認
+- [x] **2-12** `/out` コマンド動作確認
+- [x] **2-13** `/add` コマンド動作確認
+- [x] **2-14** `/summary` コマンド動作確認
+- [x] **2-15** Supabaseにデータが保存されることを確認
 
 #### Phase 2 完了条件
 - [x] `/in` で作業開始できる
@@ -628,7 +591,6 @@ INVOICE_BANK_INFO=...
 - [x] 今日の合計時間が通知される
 - [x] 月末に自動で月間サマリーが送信される
 - [x] Supabaseに正確にデータが保存される
-- [ ] Notionで作業ログが閲覧できる（未実装）
 
 ---
 
@@ -702,10 +664,10 @@ INVOICE_BANK_INFO=...
 | Phase | 進捗 | ステータス |
 |-------|------|-----------|
 | Phase 1: 基盤構築 | 10/10 | ✅ 完了 |
-| Phase 2: time-tracker 実装 | 17/18 | ✅ 完了（Notion同期以外） |
+| Phase 2: time-tracker 実装 | 15/15 | ✅ 完了 |
 | Phase 3: invoice-generator 実装 | 0/9 | ⬜ 未着手 |
 | Phase 4: テスト・調整 | 0/6 | ⬜ 未着手 |
-| **合計** | **27/43** | **63%** |
+| **合計** | **25/40** | **63%** |
 
 ---
 
@@ -716,7 +678,6 @@ INVOICE_BANK_INFO=...
 - [x] `/summary` で月間サマリーを確認できる
 - [x] プロジェクト別に時間が記録される
 - [x] Supabaseに正確にデータが保存される
-- [ ] Notionで作業ログが閲覧できる（未実装）
 - [x] `/out` 時に今日の合計が通知される
 - [x] 月末に自動で月間サマリーが届く
 - [ ] Excel形式の請求書が自動生成される（未実装）
@@ -726,4 +687,4 @@ INVOICE_BANK_INFO=...
 
 **作成日**: 2026-01-28
 **最終更新**: 2026-02-02
-**ステータス**: Phase 2完了（time-tracker全機能実装完了、Notion同期以外）
+**ステータス**: Phase 2完了（time-tracker全機能実装完了）

@@ -75,13 +75,12 @@ Daily Briefingエージェントは、毎朝の情報をまとめてSlackに自�
 - MTGのタイトル、時間、場所/URL
 - 終日イベントも対応
 
-### 2. タスク（Notion）
-- NotionのタスクDBから取得
+### 2. タスク（Google Tasks）
+- Google Tasks APIから取得
 - 期限が今日のタスク
-- 優先度でソート（高→中→低）
 - ステータスが「未完了」のもの
 
-### 3. 積み残し（Notion）
+### 3. 積み残し（Google Tasks）
 - 期限が昨日以前で未完了のタスク
 - 最大5件まで表示
 
@@ -112,7 +111,6 @@ BRIEFING_CHANNEL_ID=C...         # 投稿先チャンネル
 
 # 連携サービス
 GOOGLE_CALENDAR_ID=...           # GoogleカレンダーID
-NOTION_TASKS_DB_ID=...           # NotionタスクDB ID
 GITHUB_TOKEN=...                 # GitHub PAT
 WEATHER_API_KEY=...              # Weather API Key
 WEATHER_LOCATION=Tokyo           # 天気の地域
@@ -130,15 +128,6 @@ WEATHER_LOCATION=Tokyo           # 天気の地域
 
 ## データ構造
 
-### Notion タスクDB（必要なプロパティ）
-
-| プロパティ | 型 | 説明 |
-|-----------|-----|------|
-| タイトル | Title | タスク名 |
-| 期限 | Date | 期限日 |
-| 優先度 | Select | 高/中/低 |
-| ステータス | Select | 未着手/進行中/完了 |
-
 ## 処理フロー
 
 ```
@@ -148,9 +137,9 @@ WEATHER_LOCATION=Tokyo           # 天気の地域
     ↓
 2. Googleカレンダーから今日の予定を取得
     ↓
-3. Notionから今日のタスクを取得
+3. Google Tasksから今日のタスクを取得
     ↓
-4. Notionから積み残しタスクを取得
+4. Google Tasksから積み残しタスクを取得
     ↓
 5. GitHub APIから通知を取得
     ↓
