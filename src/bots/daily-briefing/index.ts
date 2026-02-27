@@ -2,6 +2,7 @@ import { App, LogLevel } from '@slack/bolt';
 import { config } from 'dotenv';
 import cron from 'node-cron';
 import { getTodayEvents, getEventsForDate } from './services/calendar.js';
+import { getTodayTasks, getTomorrowTasks } from './services/tasks.js';
 import { getYesterdaySummary } from './services/timetracker.js';
 import {
   generateManualBriefingMessage,
@@ -65,8 +66,11 @@ async function sendMorningBriefing() {
   console.log('☀️ 朝のブリーフィングを生成中...');
 
   try {
-    const events = await getTodayEvents().catch(() => []);
-    const message = generateMorningBriefingMessage(events);
+    const [events, tasks] = await Promise.all([
+      getTodayEvents().catch(() => []),
+      getTodayTasks().catch(() => []),
+    ]);
+    const message = generateMorningBriefingMessage(events, tasks);
 
     await app.client.chat.postMessage({
       channel: channelId,
@@ -104,12 +108,14 @@ async function sendEveningCheck() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const [todayEvents, tomorrowEvents] = await Promise.all([
+    const [todayEvents, tomorrowEvents, todayTasks, tomorrowTasks] = await Promise.all([
       getTodayEvents().catch(() => []),
       getEventsForDate(tomorrow).catch(() => []),
+      getTodayTasks().catch(() => []),
+      getTomorrowTasks().catch(() => []),
     ]);
 
-    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents);
+    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents, todayTasks, tomorrowTasks);
 
     await app.client.chat.postMessage({
       channel: channelId,
@@ -196,12 +202,14 @@ async function handleEveningCheckCommand(say: (message: string) => Promise<unkno
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const [todayEvents, tomorrowEvents] = await Promise.all([
+    const [todayEvents, tomorrowEvents, todayTasks, tomorrowTasks] = await Promise.all([
       getTodayEvents(),
       getEventsForDate(tomorrow),
+      getTodayTasks().catch(() => []),
+      getTomorrowTasks().catch(() => []),
     ]);
 
-    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents);
+    const message = generateEveningCheckMessage(todayEvents, tomorrowEvents, todayTasks, tomorrowTasks);
     await say(message);
   } catch (error) {
     console.error('夕方チェックエラー:', error);

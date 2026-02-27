@@ -1,4 +1,5 @@
 import { google, calendar_v3 } from 'googleapis';
+import { getGoogleAuthClient } from './google-auth.js';
 
 // カレンダーイベントの型
 export interface CalendarEvent {
@@ -12,21 +13,9 @@ export interface CalendarEvent {
   htmlLink?: string;
 }
 
-// Google Calendar クライアントを初期化
+// Google Calendar クライアントを初期化（OAuth 2.0）
 function getCalendarClient(): calendar_v3.Calendar {
-  const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-
-  if (!credentials) {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY が設定されていません');
-  }
-
-  const serviceAccount = JSON.parse(credentials);
-
-  const auth = new google.auth.GoogleAuth({
-    credentials: serviceAccount,
-    scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
-  });
-
+  const auth = getGoogleAuthClient();
   return google.calendar({ version: 'v3', auth });
 }
 

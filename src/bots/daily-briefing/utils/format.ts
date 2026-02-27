@@ -1,4 +1,5 @@
 import { CalendarEvent } from '../services/calendar.js';
+import { GoogleTask } from '../services/tasks.js';
 import { WorkSummary } from '../services/timetracker.js';
 
 // 曜日の日本語表記
@@ -28,6 +29,21 @@ export function formatEventLine(event: CalendarEvent): string {
   const start = formatTime(event.startTime);
   const end = formatTime(event.endTime);
   return `🔵 ${start}-${end} | ${event.title}`;
+}
+
+// タスクセクションを生成
+function formatTaskSection(tasks: GoogleTask[], label: string): string {
+  let section = `\n✅ ${label}\n`;
+
+  if (tasks.length === 0) {
+    section += `タスクはありません\n`;
+  } else {
+    for (const task of tasks) {
+      section += `• ${task.title}\n`;
+    }
+  }
+
+  return section;
 }
 
 // ブリーフィングメッセージを生成
@@ -174,8 +190,11 @@ export function generateTomorrowMessage(events: CalendarEvent[]): string {
   return message;
 }
 
-// 朝のブリーフィングメッセージを生成（Google Calendarのみ）
-export function generateMorningBriefingMessage(events: CalendarEvent[]): string {
+// 朝のブリーフィングメッセージを生成
+export function generateMorningBriefingMessage(
+  events: CalendarEvent[],
+  tasks: GoogleTask[] = []
+): string {
   const today = new Date();
   const dateStr = formatDate(today);
 
@@ -204,6 +223,11 @@ export function generateMorningBriefingMessage(events: CalendarEvent[]): string 
     message += `\n`;
   }
 
+  if (tasks.length > 0) {
+    message += formatTaskSection(tasks, '今日期限のタスク');
+    message += `\n`;
+  }
+
   message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
   message += `💡 今日も良い1日を！`;
 
@@ -222,7 +246,9 @@ function formatEventCheckLine(event: CalendarEvent): string {
 // 夕方チェックメッセージを生成
 export function generateEveningCheckMessage(
   todayEvents: CalendarEvent[],
-  tomorrowEvents: CalendarEvent[]
+  tomorrowEvents: CalendarEvent[],
+  todayTasks: GoogleTask[] = [],
+  tomorrowTasks: GoogleTask[] = []
 ): string {
   const today = new Date();
   const dateStr = formatDate(today);
@@ -255,6 +281,11 @@ export function generateEveningCheckMessage(
     message += `\n`;
   }
 
+  if (todayTasks.length > 0) {
+    message += formatTaskSection(todayTasks, '今日期限のタスク - 完了チェック');
+    message += `\n`;
+  }
+
   message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   // 明日の予定
@@ -275,6 +306,11 @@ export function generateEveningCheckMessage(
       message += `• ${start} | ${event.title}\n`;
     }
 
+    message += `\n`;
+  }
+
+  if (tomorrowTasks.length > 0) {
+    message += formatTaskSection(tomorrowTasks, '明日期限のタスク');
     message += `\n`;
   }
 
