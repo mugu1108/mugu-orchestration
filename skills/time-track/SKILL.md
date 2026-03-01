@@ -1,6 +1,6 @@
 ---
 name: time-track
-description: 業務委託の作業時間を記録・管理し、月末に請求書を自動生成します
+description: 業務委託の作業時間を記録・管理し、月間サマリーを提供します
 category: productivity
 triggers:
   - "time-track"
@@ -20,28 +20,32 @@ tools:
 
 # /time-track - 時間追跡コマンド
 
-**説明**: 業務委託の作業時間を記録・管理し、月末に請求書を自動生成します。
+**説明**: 業務委託の作業時間を記録・管理し、月間サマリーを提供します。
 
 ## 使用方法
 
 ```
-@timebot /in [プロジェクト名]       # 作業開始
-@timebot /out                       # 作業終了
-@timebot /status                    # 状態確認
-@timebot /add [プロジェクト] [時間] # 作業時間追加
-@timebot /summary [YYYY-MM]         # 月間サマリー
+@timebot /in [プロジェクト名]           # 作業開始
+@timebot /out                           # 作業終了
+@timebot /status                        # 状態確認
+@timebot /today                         # 今日のプロジェクト別内訳
+@timebot /week                          # 週間サマリー
+@timebot /add [プロジェクト] [時間]     # 作業時間追加
+@timebot /undo                          # 直近の記録を削除
+@timebot /summary [YYYY-MM]             # 月間サマリー
+@timebot /project add [名前] [時給]     # プロジェクト追加
 ```
 
 ## 概要
 
-Time Trackerは、Slackを通じて業務委託の作業時間を記録するシステムです。データはSupabase（マスターDB）に保存されます。月末には自動で請求書が生成されます。
+Time Trackerは、Slackを通じて業務委託の作業時間を記録するシステムです。データはSupabase（マスターDB）に保存されます。月末には自動で月間サマリーが通知されます。
 
 ## 起動タイミング
 
 - **作業開始時**: プロジェクトの作業を開始
 - **作業終了時**: 作業を終了し、経過時間を記録
 - **状態確認時**: 現在の作業状態を確認
-- **月末**: 請求書の自動生成
+- **月末**: 月間サマリーの自動通知
 
 ## 前提条件
 
@@ -53,12 +57,10 @@ Time Trackerは、Slackを通じて業務委託の作業時間を記録するシ
 
 ### ステップ1: プロジェクトの登録
 
-作業時間を記録する前に、プロジェクトをSupabaseに登録します:
+作業時間を記録する前に、プロジェクトを登録します:
 
-```sql
-INSERT INTO projects (name, client_name, hourly_rate) VALUES
-  ('プロジェクトA', '株式会社A', 5000),
-  ('プロジェクトB', '株式会社B', 4500);
+```
+@timebot /project add プロジェクトA 5000
 ```
 
 ### ステップ2: 作業開始（/in）
@@ -116,7 +118,23 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 ⏱️ 経過時間: 1時間45分
 ```
 
-### ステップ5: 作業時間の追加（/add）
+### ステップ5: 今日の内訳確認（/today）
+
+```
+@timebot /today
+```
+
+今日の作業ログをプロジェクト別に集計して表示します。
+
+### ステップ6: 週間サマリー（/week）
+
+```
+@timebot /week
+```
+
+今週の作業ログをプロジェクト別に集計し、セッション数とともに表示します。
+
+### ステップ7: 作業時間の追加（/add）
 
 ```
 @timebot /add saixaid 2時間
@@ -133,7 +151,15 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 📊 本日の合計: 4時間30分
 ```
 
-### ステップ6: 月間サマリー（/summary）
+### ステップ8: 直近の記録を削除（/undo）
+
+```
+@timebot /undo
+```
+
+直近の完了済み作業ログを削除します。誤記録の修正に使用します。
+
+### ステップ9: 月間サマリー（/summary）
 
 ```
 @timebot /summary           # 今月
@@ -153,7 +179,16 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 💰 総合計: ¥86,450
 ```
 
-### ステップ7: 月末自動通知
+### ステップ10: プロジェクト管理（/project）
+
+```
+@timebot /project              # 一覧表示
+@timebot /project add [名前] [時給]  # プロジェクト追加
+```
+
+プロジェクトの一覧表示と新規追加を行います。Supabase上でSQL直接操作する代わりに、Slackから管理できます。
+
+### ステップ11: 月末自動通知
 
 毎月末日の23:00（JST）に自動で月間サマリーが `SLACK_CHANNEL_ID` に送信されます。
 
@@ -219,21 +254,8 @@ INSERT INTO projects (name, client_name, hourly_rate) VALUES
 
 | 保存先 | 用途 | 内容 |
 |--------|------|------|
-| **Supabase** | マスターDB | 全作業ログ、正確な集計、請求書履歴 |
+| **Supabase** | マスターDB | 全作業ログ、プロジェクト情報、月間集計 |
 | **Slack** | 通知 | リアルタイム通知、Excelファイル共有 |
-
-## サブエージェント
-
-### invoice-generator
-
-月末に自動で請求書を生成するサブエージェントです。
-
-**機能**:
-- 月末検知
-- 締め日通知
-- 月間集計
-- Excel請求書生成
-- Slackアップロード
 
 ## 技術仕様
 
@@ -249,20 +271,15 @@ SLACK_APP_TOKEN=xapp-...
 SLACK_CHANNEL_ID=C...
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
-INVOICE_SENDER_NAME=...
-INVOICE_SENDER_ADDRESS=...
-INVOICE_BANK_INFO=...
 ```
 
 ## 関連エージェント
 
-- **time-tracker**: このコマンドが呼び出すエージェント
-- **invoice-generator**: 請求書生成サブエージェント
+- **time-tracker**: このコマンドが呼び出すエージェント（`agents/business/time-tracker.md`）
 
 ## 関連ファイル
 
-- `agents/time-tracker.md` - Time Trackerエージェント定義
-- `agents/invoice-generator.md` - Invoice Generatorサブエージェント定義
+- `agents/business/time-tracker.md` - Time Trackerエージェント定義
 - `commands/time-track.md` - コマンド定義
 - `src/lib/supabase/time-tracker-schema.sql` - DBスキーマ
 - `docs/time-tracker-spec.md` - 詳細仕様書
